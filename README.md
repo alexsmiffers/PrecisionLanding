@@ -18,5 +18,7 @@ First:
     ```
 6. Interface Options > VNC > Enable > Finish
 7. Check VNC is active using:
-    'systemctl status wayvnc'
+   ```bash
+    systemctl status wayvnc
+   ```
 8. Join on viewer device using a VNC client like TigerVNC. 
