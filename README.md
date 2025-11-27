@@ -9,9 +9,14 @@ First:
 1. Power on the Pi
 2. Connect to same network
 3. SSH in
+    ```bash
     ssh <username>@<ip>
-4. sudo raspi-config
-5. Interface Options > VNC > Enable > Finish
-6. Check VNC is active using:
+    ```
+4. Open Raspberry Pi Config
+    ```bash
+   sudo raspi-config
+    ```
+6. Interface Options > VNC > Enable > Finish
+7. Check VNC is active using:
     'systemctl status wayvnc'
-7. Join on viewer device using a VNC client like TigerVNC. 
+8. Join on viewer device using a VNC client like TigerVNC. 
