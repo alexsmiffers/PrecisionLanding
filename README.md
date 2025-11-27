@@ -1,59 +1,17 @@
 # PrecisionLanding
 Precision Landing System using Raspberry Pi Zero and OAK-D-LITE-AF Camera
 
-# Lander Setup
+## Raspberry Pi
+### Raspberry Pi VNC
+For testing it is best to use VNC to see the GUI of the PI.
 
-Works on:
-- Raspberry Pi 5 (8GB) - Raspberry Pi OS 12 (Bookworm)
-- Camera: Oak D Lite (single mono cam 640x480)
-
-## Setup
-- Do not forget to setup tailscale first if you want to enable the through internet forwarding
-- under run_lander.sh, do change the /tty**** according to your connected port
-- Adjust the tag coordinate, ID, etc. accordingly
-
-## Dependencies
-```bash
-sudo apt update
-sudo apt install -y libusb-1.0-0-dev libopencv-dev python3-pip
-# MAVProxy (required)
-pip3 install --user MAVProxy
-```
-
-## Installation
-1) DepthAI installation (v2.x)
-```bash
-git clone https://github.com/luxonis/depthai-core
-cd depthai-core
-git checkout v2.29.0
-git submodule update --init --recursive
-mkdir build && cd build
-sudo cmake ..
-sudo cmake --build . --target install
-```
-2) MAVLink (inside lander)
-```bash
-cd ../lander
-git clone https://github.com/mavlink/c_library_v2.git third_party/mavlink
-```
-3) Install MAVProxy (if not already installed)
-```bash
-pip3 install --user MAVProxy
-```
-4) Build
-```bash
-From the lander folder:
-
-mkdir -p build
-cd build
-cmake -Ddepthai_DIR=../depthai-core/build/install/lib/cmake/depthai ..
-make -j$(nproc)
-```
-5) Make launcher executable
-```bash
-sudo chmod +x run_lander.sh
-```
-6) Run
-```bash
-./run_lander.sh
-```
+First:
+1. Power on the Pi
+2. Connect to same network
+3. SSH in
+    ssh beta@192.168.10.233
+4. sudo raspi-config
+5. Interface Options > VNC > Enable > Finish
+6. Check VNC is active using:
+    'systemctl status wayvnc'
+7. Join on viewer device using a VNC client like TigerVNC. 
