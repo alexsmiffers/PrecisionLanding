@@ -9,7 +9,7 @@ First:
 1. Power on the Pi
 2. Connect to same network
 3. SSH in
-    ssh beta@192.168.10.233
+    ssh <username>@<ip>
 4. sudo raspi-config
 5. Interface Options > VNC > Enable > Finish
 6. Check VNC is active using:
