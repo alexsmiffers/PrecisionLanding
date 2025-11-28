@@ -39,7 +39,9 @@ pip3 install opencv-python
 pip3 install -U numpy
 python3 -m pip install depthai
 cd depthai-python/examples
+```
 Test with a preview before continuing.
+```bash
 python3 ColorCamera/rgb_preview.py
 ```
 If the camera works at this stage, continue with the installation. For refinement the efficacy of dependencies after this point should be reviewed. 
@@ -53,4 +55,6 @@ sudo udevadm control --reload-rules && sudo udevadm trigger
 ```
 
 source depthai-venv/bin/activate
+chmod +x myscript.py
+./myscript.py
 
