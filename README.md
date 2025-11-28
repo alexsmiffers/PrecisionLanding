@@ -1,59 +1,77 @@
 # PrecisionLanding
 Precision Landing System using Raspberry Pi Zero and OAK-D-LITE-AF Camera
 
-# Lander Setup
+## Raspberry Pi
+### Raspberry Pi VNC
+For testing it is best to use VNC to see the GUI of the PI.
 
-Works on:
-- Raspberry Pi 5 (8GB) - Raspberry Pi OS 12 (Bookworm)
-- Camera: Oak D Lite (single mono cam 640x480)
+First:
+1. Power on the Pi
+2. Connect to same network
+3. SSH in
+    ```bash
+    ssh <username>@<ip>
+    ```
+4. Open Raspberry Pi Config
+    ```bash
+   sudo raspi-config
+    ```
+6. Interface Options > VNC > Enable > Finish
+7. Check VNC is active using:
+   ```bash
+    systemctl status wayvnc
+   ```
+8. Join on viewer device using a VNC client like TigerVNC. 
 
-## Setup
-- Do not forget to setup tailscale first if you want to enable the through internet forwarding
-- under run_lander.sh, do change the /tty**** according to your connected port
-- Adjust the tag coordinate, ID, etc. accordingly
+### Raspberry Pi Dependencies v1
+```bash
+sudo apt install python3-full python3-venv
+python3 -m venv depthai-venv
+source depthai-venv/bin/activate
+apt-get update && upgrade
+curl -fL https://docs.luxonis.com/install_dependencies.sh | bash
+python3 -m pip install depthai
+git clone https://github.com/luxonis/depthai-python.git
+cd depthai-python
+cd examples
+sudo python3 install_requirements.py
+cd
+pip3 install opencv-python
+pip3 install -U numpy
+python3 -m pip install depthai
+cd depthai-python/examples
+```
+Test with a preview before continuing.
+```bash
+python3 ColorCamera/rgb_preview.py
+```
+If the camera works at this stage, continue with the installation. For refinement the efficacy of dependencies after this point should be reviewed. 
+```bash
+git clone https://github.com/luxonis/depthai.git
+cd depthai
+python3 install_requirements.py
+cd
+echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="03e7", MODE="0666"' | sudo tee /etc/udev/rules.d/80-movidius.rules
+sudo udevadm control --reload-rules && sudo udevadm trigger
+```
+### Raspberry Pi Dependencies v2
+``` bash
+git clone https://github.com/luxonis/depthai-core.git && cd depthai-core
+python3 -m venv venv
+source venv/bin/activate
+# Installs library and requirements
+python3 examples/python/install_requirements.py
+``` 
 
-## Dependencies
-```bash
-sudo apt update
-sudo apt install -y libusb-1.0-0-dev libopencv-dev python3-pip
-# MAVProxy (required)
-pip3 install --user MAVProxy
-```
+### Test Raspberry Pi
+``` bash
+cd examples/python
+# Run YoloV6 detection example
+python3 DetectionNetwork/detection_network.py
+# Display all camera streams
+python3 Camera/camera_all.py
+``` 
 
-## Installation
-1) DepthAI installation (v2.x)
-```bash
-git clone https://github.com/luxonis/depthai-core
-cd depthai-core
-git checkout v2.29.0
-git submodule update --init --recursive
-mkdir build && cd build
-sudo cmake ..
-sudo cmake --build . --target install
-```
-2) MAVLink (inside lander)
-```bash
-cd ../lander
-git clone https://github.com/mavlink/c_library_v2.git third_party/mavlink
-```
-3) Install MAVProxy (if not already installed)
-```bash
-pip3 install --user MAVProxy
-```
-4) Build
-```bash
-From the lander folder:
-
-mkdir -p build
-cd build
-cmake -Ddepthai_DIR=../depthai-core/build/install/lib/cmake/depthai ..
-make -j$(nproc)
-```
-5) Make launcher executable
-```bash
-sudo chmod +x run_lander.sh
-```
-6) Run
-```bash
-./run_lander.sh
-```
+source depthai-venv/bin/activate
+chmod +x myscript.py
+./myscript.py
