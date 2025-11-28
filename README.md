@@ -22,6 +22,7 @@ First:
     systemctl status wayvnc
    ```
 8. Join on viewer device using a VNC client like TigerVNC. 
+
 ### Raspberry Pi Dependencies
 ```bash
 sudo apt install python3-full python3-venv
@@ -57,4 +58,3 @@ sudo udevadm control --reload-rules && sudo udevadm trigger
 source depthai-venv/bin/activate
 chmod +x myscript.py
 ./myscript.py
-
