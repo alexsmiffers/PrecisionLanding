@@ -23,7 +23,7 @@ First:
    ```
 8. Join on viewer device using a VNC client like TigerVNC. 
 
-### Raspberry Pi Dependencies v1
+### Raspberry Pi Dependencies
 ```bash
 sudo apt install python3-full python3-venv
 python3 -m venv depthai-venv
@@ -54,23 +54,6 @@ cd
 echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="03e7", MODE="0666"' | sudo tee /etc/udev/rules.d/80-movidius.rules
 sudo udevadm control --reload-rules && sudo udevadm trigger
 ```
-### Raspberry Pi Dependencies v2
-``` bash
-git clone https://github.com/luxonis/depthai-core.git && cd depthai-core
-python3 -m venv venv
-source venv/bin/activate
-# Installs library and requirements
-python3 examples/python/install_requirements.py
-``` 
-
-### Test Raspberry Pi
-``` bash
-cd examples/python
-# Run YoloV6 detection example
-python3 DetectionNetwork/detection_network.py
-# Display all camera streams
-python3 Camera/camera_all.py
-``` 
 
 source depthai-venv/bin/activate
 chmod +x myscript.py
