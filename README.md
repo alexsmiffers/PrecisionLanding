@@ -31,6 +31,8 @@ source venv/bin/activate
 # Installs library and requirements
 cd depthai-core
 python3 examples/python/install_requirements.py
+cd ..
+git clone https://github.com/opencv/opencv_contrib.git
 ``` 
 
 ### Test Raspberry Pi
