@@ -28,6 +28,8 @@ First:
 git clone https://github.com/luxonis/depthai-core.git && cd depthai-core
 python3 -m venv venv
 source venv/bin/activate
+pip3 install MAVProxy
+pip install future
 # Installs library and requirements
 cd depthai-core
 python3 examples/python/install_requirements.py
@@ -43,7 +45,15 @@ python3 DetectionNetwork/detection_network.py
 # Display all camera streams
 python3 Camera/camera_all.py
 ``` 
+### Start MavLink on Raspberry Pi
+```bash
+source venv/bin/activate
+mavproxy.py --master=/dev/serial0,57600
+```
 
 source depthai-venv/bin/activate
 chmod +x myscript.py
 ./myscript.py
+
+mavproxy.py --master=/dev/serial0,57600
+
