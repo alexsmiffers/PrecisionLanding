@@ -1,3 +1,36 @@
+'''
+/***************************************************************
+ *  Script Name: aruco.py
+ *  Project Name: PrecisionLanding
+ *  Author: Alex Smith
+ *  Date of Last Revision: 27/04/2024
+ *
+ *  Description:
+ *      This script detects ArUco markers in a video stream and estimates their poses in an output video feed.
+ *
+ *  Usage Instructions:
+ *      Run the script after calibrating the camera using camera_calibration.py.
+ *      Example:
+ *          python3 aruco.py
+ *
+ *  Inputs:
+ *      Must have camera calibration files mtx.npy and dist.npy in the same directory as the script and 
+ *      OAK-D camera from DEPTHAI connected.
+ *
+ *  Outputs:
+ *      Displays video feed with detected ArUco markers and their axes drawn.
+ *
+ *  Dependencies:
+ *      OpenCV, DepthAI, NumPy (installed as part of the installation guide in README.md)
+ *
+ *  Notes:
+ *      Make sure to define the correct marker sizes in the MARKER_SIZES dictionary. 
+ *      Script should be translated into C++ for better performance if used in a real-time application.
+ *      Need to tinker with DetectorParameters for better detection under different conditions.
+ *
+ ***************************************************************/
+'''
+
 #!/usr/bin/env python3
 
 import cv2
@@ -54,7 +87,7 @@ def estimate_pose_multi_markers(corners, ids, camera_matrix, dist_coeffs, marker
 
     return rvecs, tvecs
 
-detectorParams = cv2.aruco.DetectorParameters()
+detectorParams = cv2.aruco.DetectorParameters() # uses default parameters at the moment
 dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
 detector = cv2.aruco.ArucoDetector(dictionary, detectorParams)
 count = 0
@@ -95,16 +128,17 @@ with dai.Pipeline() as pipeline:
                 dist, 
                 rvecs[marker_id], 
                 tvecs[marker_id], 
-                0.05  # adjust axis length
+                0.05  # adjust axis length in meters
             )
+
         cv2.imshow("drawn", frame)
         
         key = cv2.waitKey(1) & 0xFF
-
         if key == ord('i'):
             cv2.imwrite(f"calib{count}.jpg", frame)
             count += 1
-
         elif key == ord('q'):
             cv2.destroyAllWindows()
             break
+
+    
