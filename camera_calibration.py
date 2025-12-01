@@ -15,7 +15,7 @@
  *          python3 camera_calibration.py
  *
  *  Inputs:
- *      Must have chessboard images from the camera in .jpg file format in the same directory as the script.
+ *      Must have chessboard images from the camera in .jpg file format in the "calibration_images" folder.
  *
  *  Outputs:
  *      Camera matrix and distortion coefficients saved as mtx.npy and dist.npy files.
@@ -43,7 +43,8 @@ objp[:, :2] = np.mgrid[0:7, 0:6].T.reshape(-1, 2)
 objpoints = []
 imgpoints = []
 
-images = glob.glob('*.jpg')
+save_folder = "calibration_images" # make sure this folder exists and contains the chessboard images
+images = glob.glob(f"{save_folder}/*.jpg")
 
 for fname in images:
     img = cv.imread(fname)
@@ -64,9 +65,7 @@ for fname in images:
 
 cv.destroyAllWindows()
 
-# ---------------------------
-# NOW do calibration ONCE
-# ---------------------------
+# Now do calibration once on all collected points
 ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(
     objpoints,
     imgpoints,

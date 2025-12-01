@@ -36,6 +36,7 @@
 import cv2
 import depthai as dai
 import numpy as np
+import os
 
 
 def estimate_pose_multi_markers(corners, ids, camera_matrix, dist_coeffs, marker_sizes):
@@ -97,6 +98,7 @@ MARKER_SIZES = {
     23: 0.053,   # 5.3 cm
     56: 0.139,   # 13.9 cm
 }
+save_folder = "calibration_images"
 
 # Create pipeline
 with dai.Pipeline() as pipeline:
@@ -135,7 +137,7 @@ with dai.Pipeline() as pipeline:
         
         key = cv2.waitKey(1) & 0xFF
         if key == ord('i'):
-            cv2.imwrite(f"calib{count}.jpg", frame)
+            cv2.imwrite(f"{save_folder}/calib{count}.jpg", frame)
             count += 1
         elif key == ord('q'):
             cv2.destroyAllWindows()
