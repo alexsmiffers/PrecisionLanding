@@ -1,0 +1,9 @@
+CAMERA_ID: 0
+FRAME_W: 640
+FRAME_H: 480
+ARUCO_DICT: "cv.aruco.DICT_6X6_100"
+TAG_ID: 0
+TAG_SIZE_M: 0.20  # marker side length in meters (used only if you want pose/xyz)
+SERIAL_DEV: "/dev/ttyAMA0"  # Pixhawk TELEM port wired to Pi UART
+BAUD: 57600                # or 57600 depending on your setup
+USE_FULL_POSE: true        # true: send xyz + position_valid=1; false: angles-only
