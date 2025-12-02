@@ -3,7 +3,7 @@
  *  Script Name: aruco_gen.py 
  *  Project Name: PrecisionLanding
  *  Author: Alex Smith
- *  Date of Last Revision: 27/04/2024
+ *  Date of Last Revision: 01/12/2025
  *
  *  Description:
  *      This script generates and saves an ArUco marker image.

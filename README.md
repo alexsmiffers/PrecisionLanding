@@ -30,6 +30,7 @@ python3 -m venv venv
 source venv/bin/activate
 pip3 install MAVProxy
 pip install future
+pip3 install pymavlink
 # Installs library and requirements
 cd depthai-core
 python3 examples/python/install_requirements.py
@@ -56,4 +57,22 @@ chmod +x myscript.py
 ./myscript.py
 
 mavproxy.py --master=/dev/serial0,57600
+
+OpenCV / ArUco camera frame (typical)
+X: right, Y: down, Z: forward (optical axis).
+
+Great Resource:
+https://landmarklanding.com/blogs/landmark-lab-notes/ardupilot-precision-landing?srsltid=AfmBOooBo9DkUGmmoWkkiA64ibtNPDiqPz8BiBHSH0zS63usgCl28VDP
+
+Citation for OpenCV:
+‍S. Garrido-Jurado, R. Muñoz-Salinas, F. J. Madrid-Cuevas, and M. J. Marín-Jiménez. 2014. "Automatic generation and detection of highly reliable fiducial markers under occlusion". Pattern Recogn. 47, 6 (June 2014), 2280-2292. DOI=10.1016/j.patcog.2014.01.005
+
+# Notes:
+* Once flight controller (FC) is finalised investigate powering raspi directly from FC to minimise wiring. Only works on boards which TELEM outputs +5V not +3V3.
+* Global shutter is ideal but not required, evaluate the difference in some options.
+* Suggests raspi zero 2 W or better which has 1.1 GHz quad core processor and 512 MB ram.
+* Future stretch goals could include using IR sensors for better performance in low light conditions like in this research: https://arxiv.org/abs/2403.03806
+* can use yaml or argparser, not sure which is better for this application yet, probs settings as it doesn't involve editing shell script
+
+
 

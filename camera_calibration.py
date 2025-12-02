@@ -32,33 +32,46 @@
 import numpy as np
 import cv2 as cv
 import glob
+import os
+
+# number of inner rows and columns in the chessboard
+rows=9
+cols=7
 
 # termination criteria
 criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
 # prepare object points
-objp = np.zeros((6*7, 3), np.float32)
-objp[:, :2] = np.mgrid[0:7, 0:6].T.reshape(-1, 2)
+objp = np.zeros((rows*cols, 3), np.float32)
+objp[:, :2] = np.mgrid[0:cols, 0:rows].T.reshape(-1, 2)
 
 objpoints = []
 imgpoints = []
 
-save_folder = "calibration_images" # make sure this folder exists and contains the chessboard images
+# directory where THIS script lives
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# calibration image folder inside the same directory
+save_folder = os.path.join(BASE_DIR, "calibration_images")
+
+# get all JPG images
 images = glob.glob(f"{save_folder}/*.jpg")
 
+print("Images found:", len(images))
 for fname in images:
     img = cv.imread(fname)
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
-    ret, corners = cv.findChessboardCorners(gray, (7, 6), None)
+    ret, corners = cv.findChessboardCorners(gray, (cols, rows), None)
 
     if ret:
+        print(f"Chessboard found in {fname}")
         objpoints.append(objp)
 
         corners2 = cv.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
         imgpoints.append(corners2)
 
-        cv.drawChessboardCorners(img, (7, 6), corners2, ret)
+        cv.drawChessboardCorners(img, (cols, rows), corners2, ret)
 
     cv.imshow('img', img)
     cv.waitKey(500)   # show EVERY image for 0.5 seconds
