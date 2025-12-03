@@ -1,9 +1,15 @@
-CAMERA_ID: 0
 FRAME_W: 640
 FRAME_H: 480
 ARUCO_DICT: "cv.aruco.DICT_6X6_100"
-TAG_ID: 0
-TAG_SIZE_M: 0.20  # marker side length in meters (used only if you want pose/xyz)
 SERIAL_DEV: "/dev/ttyAMA0"  # Pixhawk TELEM port wired to Pi UART
 BAUD: 57600                # or 57600 depending on your setup
-USE_FULL_POSE: true        # true: send xyz + position_valid=1; false: angles-only
+SQUARES_X: 7               # Number of squares in X direction on Charuco board
+SQUARES_Y: 9               # Number of squares in Y direction on Charuco board
+SQUARE_LENGTH: 0.02       # Length of one square side in meters
+MARKER_LENGTH: 0.01       # Length of one marker side in meters
+TEST_MODE: True            # Set to True to enable visualization for bench testing
+DETECT_MODE: "CHARUCO"  # Options: "ARUCO" or "CHARUCO"
+CAMERA_ID: 0              # Camera ID for OpenCV VideoCapture (if not using DepthAI)
+TAG_ID: 56                  # ArUco marker ID to track for landing
+TAG_SIZE: 0.139             # Size of the ArUco marker in meters
+USE_FULL_POSE: True

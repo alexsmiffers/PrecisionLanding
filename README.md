@@ -31,6 +31,8 @@ source venv/bin/activate
 pip3 install MAVProxy
 pip install future
 pip3 install pymavlink
+pip install pyyaml
+pip install pyserial
 # Installs library and requirements
 cd depthai-core
 python3 examples/python/install_requirements.py
@@ -73,6 +75,6 @@ Citation for OpenCV:
 * Suggests raspi zero 2 W or better which has 1.1 GHz quad core processor and 512 MB ram.
 * Future stretch goals could include using IR sensors for better performance in low light conditions like in this research: https://arxiv.org/abs/2403.03806
 * can use yaml or argparser, not sure which is better for this application yet, probs settings as it doesn't involve editing shell script
-
+* pose estimation starts failing at approx 15 cm from the board.
 
 
