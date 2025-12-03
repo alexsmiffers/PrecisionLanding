@@ -11,8 +11,8 @@
  *  Usage Instructions:
  *      Run the script after calibrating the camera using camera_calibration.py.
  *      Example:
- *          python3 charuco.py 1
- *          python3 charuco.py 2
+ *          python3 charuco.py 1 7 9 0.02 0.01
+ *          python3 charuco.py 2 7 9 
  *          python3 charuco.py 3
  *
  *  Inputs:
@@ -149,10 +149,14 @@ def detectCharucoBoardWithCalibrationPose(squaresX, squaresY, squareLength, mark
     totalTime = 0
     totalIterations = 0
 
+    with dai.Device() as device:
+        print(device.getConnectedCameraFeatures())
+
     # Create pipeline
     with dai.Pipeline() as pipeline:
         # Define source and output
-        cam = pipeline.create(dai.node.Camera).build()
+        cam = pipeline.create(dai.node.Camera).build(boardSocket = dai.CameraBoardSocket.RGB, sensorFps = 30.3)
+        # cam.initialControl.setManualFocus(100)
         videoQueue = cam.requestOutput((640,480)).createOutputQueue()
 
         # Connect to device and start pipeline
@@ -166,18 +170,22 @@ def detectCharucoBoardWithCalibrationPose(squaresX, squaresY, squareLength, mark
             # detect markers and charuco corners
             charucoCorners, charucoIds, markerCorners, markerIds = charucoDetector.detectBoard(frame)
 
-            if markerIds is not None:
+            # print("before marker ", markerIds, " of type", type(markerIds))
+            # print("before charuco ", charucoIds, " of type", type(charucoIds))
+            if markerIds is not None and markerIds.any() and charucoIds is not None and charucoIds.any():
+                # print("after marker ", markerIds, " of type", type(markerIds))
+                # print("after charuco ", charucoIds, " of type", type(charucoIds))
                 # estimate charuco board pose
                 validPose = False
-                if np.sum(camMatrix) != 0 and np.sum(distCoeffs) != 0 and charucoIds.size() >= 4:
+                if np.sum(camMatrix) != 0 and np.sum(distCoeffs) != 0 and len(charucoIds) >= 6:
                     objPoints, imgPoints = board.matchImagePoints(charucoCorners, charucoIds)
                     validPose, rvec, tvec = cv.solvePnP(objPoints, imgPoints, camMatrix, distCoeffs)
                 
                 # draw results
                 drawn = frame.copy()
-                if markerIds.size() > 0:
+                if len(markerIds) > 0:
                     cv.aruco.drawDetectedMarkers(drawn, markerCorners)
-                if charucoIds.size() > 0:
+                if len(charucoIds) > 0:
                     cv.aruco.drawDetectedCornersCharuco(drawn, charucoCorners, charucoIds, (255, 0, 0))
                 if validPose:
                     cv.drawFrameAxes(drawn, camMatrix, distCoeffs, rvec, tvec, axisLength)
@@ -189,8 +197,10 @@ def detectCharucoBoardWithCalibrationPose(squaresX, squaresY, squareLength, mark
                 totalIterations += 1
                 if totalIterations % 30 == 0:
                     print(f"Detection Time = {currentTime * 1000} ms (Mean = {1000 * totalTime / totalIterations} ms)")
-    
-            cv.imshow("drawn", frame)
+                cv.imshow("video", drawn)
+            else:
+                cv.imshow("video", frame)
+                
             if cv.waitKey(1) == ord('q'):
                 break
 
@@ -199,8 +209,8 @@ parser = argparse.ArgumentParser("Code for charuco board creation and detection 
 parser.add_argument("function", nargs='?', const=1, default=3, help="1 to create a charuco board;\n2 to perform camera calibration;\n3 to detect charuco board with camera calibration and Pose Estimation", type=int)
 parser.add_argument("squaresX", nargs='?', const=1, default=7, help="Number of squares in X direction", type=int)
 parser.add_argument("squaresY", nargs='?', const=1, default=9, help="Number of squares in Y direction", type=int)
-parser.add_argument("squareLength", nargs='?', const=1, default=0.04, help="Length of a square", type=float)
-parser.add_argument("markerLength", nargs='?', const=1, default=0.02, help="Length of a marker", type=float)
+parser.add_argument("squareLength", nargs='?', const=1, default=0.02, help="Length of a square", type=float)
+parser.add_argument("markerLength", nargs='?', const=1, default=0.01, help="Length of a marker", type=float)
 args = parser.parse_args()
 if args.function == 1:
     print("Chosen functionality is: ", args.function, " : Create ChArUco board image")
