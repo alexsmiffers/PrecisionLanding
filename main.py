@@ -103,19 +103,19 @@ def charuco(settings, camMatrix, distCoeffs):
                         print(f"Position (m): x={x_b:.2f}, y={y_b:.2f}, z={z_b:.2f}; Angles (rad): x={angle_x:.2f}, y={angle_y:.2f}")
                     # LANDING_TARGET send (MAVLink2 fields via keyword args are supported by pymavlink)
                     
-                    # m.mav.landing_target_send(
-                    #     int(tnow * 1e6),        # time_usec
-                    #     0,                      # target_num
-                    #     mavutil.mavlink.MAV_FRAME_BODY_NED,
-                    #     float(angle_x), float(angle_y),
-                    #     0.0,                    # distance (set 0 if using rangefinder)
-                    #     settings.get('SQUARE_LENGTH'), settings.get('SQUARE_LENGTH'),               # size_x, size_y
-                    #     x_b, y_b, z_b,          # position in body frame (if available)
-                    #     [1.0, 0.0, 0.0, 0.0],   # orientation (unused here)
-                    #     mavutil.mavlink.LANDING_TARGET_TYPE_VISION_FIDUCIAL,
-                    #     position_valid
-                    # )
-                        # Optional visualization for bench testing:
+                    m.mav.landing_target_send(
+                        int(tnow * 1e6),        # time_usec
+                        0,                      # target_num
+                        mavutil.mavlink.MAV_FRAME_BODY_NED,
+                        float(angle_x), float(angle_y),
+                        0.0,                    # distance (set 0 if using rangefinder)
+                        settings.get('SQUARE_LENGTH'), settings.get('SQUARE_LENGTH'),               # size_x, size_y
+                        x_b, y_b, z_b,          # position in body frame (if available)
+                        [1.0, 0.0, 0.0, 0.0],   # orientation (unused here)
+                        mavutil.mavlink.LANDING_TARGET_TYPE_VISION_FIDUCIAL,
+                        position_valid
+                    )
+
 
                 # print("checkpoint pose computed")
                 if settings.get('TEST_MODE') == True:
@@ -144,13 +144,13 @@ def aruco(settings, camMatrix, distCoeffs):
     dictionary = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_6X6_100)
     detector = cv.aruco.ArucoDetector(dictionary, detectorParams)
 
-    # # MAVLink connection
-    # m = mavutil.mavlink_connection(settings.get('SERIAL_DEV'), baud=settings.get('BAUD'))
-    # # Wait for heartbeat so target system/component IDs are known (optional but helpful)
-    # try:
-    #     m.wait_heartbeat(timeout=5)
-    # except Exception:
-    #     pass  # continue anyway
+    # MAVLink connection
+    m = mavutil.mavlink_connection(settings.get('SERIAL_DEV'), baud=settings.get('BAUD'))
+    # Wait for heartbeat so target system/component IDs are known (optional but helpful)
+    try:
+        m.wait_heartbeat(timeout=5)
+    except Exception:
+        pass  # continue anyway
 
     fx, fy = camMatrix[0,0], camMatrix[1,1]
     cx, cy = camMatrix[0,2], camMatrix[1,2]

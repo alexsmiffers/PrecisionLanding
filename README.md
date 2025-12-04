@@ -60,7 +60,7 @@ chmod +x myscript.py
 
 mavproxy.py --master=/dev/serial0,57600
 
-git fetch origin && git reset --hard origin/mainc
+git fetch origin && git reset --hard origin/main
 
 OpenCV / ArUco camera frame (typical)
 X: right, Y: down, Z: forward (optical axis).
