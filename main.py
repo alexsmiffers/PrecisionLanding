@@ -153,6 +153,8 @@ def aruco(settings, camMatrix, distCoeffs):
     rate_hz = 20.0
     period = 1.0 / rate_hz
     next_t = time.time()
+    longestLoop = 0
+    iterations = 0
 
     rvec = None
     tvec = None
@@ -166,6 +168,7 @@ def aruco(settings, camMatrix, distCoeffs):
         # Connect to device and start pipeline
         pipeline.start()
         while pipeline.isRunning():
+            loopstart = time.time()
             videoIn = videoQueue.get()
             assert isinstance(videoIn, dai.ImgFrame)
             frame = videoIn.getCvFrame()
@@ -231,7 +234,6 @@ def aruco(settings, camMatrix, distCoeffs):
 
                 # print("checkpoint pose computed")
                 if settings.get('TEST_MODE') == True:
-                    # print("draw outputs started")
                     drawn = frame.copy()
                     if ids is not None and ids.any():
                         cv.aruco.drawDetectedMarkers(drawn, corners, ids)
@@ -242,12 +244,20 @@ def aruco(settings, camMatrix, distCoeffs):
                         break
 
             else:
-                cv.imshow("video", frame)
-                if cv.waitKey(1) == ord('q'):
-                    break
-
+                if settings.get('TEST_MODE') == True:
+                    cv.imshow("video", frame)
+                    if cv.waitKey(1) == ord('q'):
+                        break
+            if iterations>3:
+                loopTime = time.time()-loopstart
+                if loopTime > longestLoop:
+                    longestLoop = loopTime
+                    print("New longest time taken for a loop is: ", longestLoop, " on loop: ", iterations)  
+            iterations+=1        
 # main
 if settings.get('DETECT_MODE') == 'CHARUCO':
     charuco(settings, camMatrix, distCoeffs)
+    print("Program End")
 elif settings.get('DETECT_MODE') == 'ARUCO':
     aruco(settings, camMatrix, distCoeffs)
+    print("Program End")

@@ -76,5 +76,6 @@ Citation for OpenCV:
 * Future stretch goals could include using IR sensors for better performance in low light conditions like in this research: https://arxiv.org/abs/2403.03806
 * can use yaml or argparser, not sure which is better for this application yet, probs settings as it doesn't involve editing shell script
 * pose estimation starts failing at approx 15 cm from the board.
+* currently max time for a loop is 0.08 using python on macbook. Raspi not yet evaluated. This would require a hz of approx 10 which is the minimum recommended.
 
 
