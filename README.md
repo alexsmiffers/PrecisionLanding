@@ -60,6 +60,8 @@ chmod +x myscript.py
 
 mavproxy.py --master=/dev/serial0,57600
 
+git fetch origin && git reset --hard origin/mainc
+
 OpenCV / ArUco camera frame (typical)
 X: right, Y: down, Z: forward (optical axis).
 
@@ -77,5 +79,8 @@ Citation for OpenCV:
 * can use yaml or argparser, not sure which is better for this application yet, probs settings as it doesn't involve editing shell script
 * pose estimation starts failing at approx 15 cm from the board.
 * currently max time for a loop is 0.08 using python on macbook. Raspi not yet evaluated. This would require a hz of approx 10 which is the minimum recommended.
+* print on white filament and paint the insides 
+* need to make sure you switch to small aruco detection while both are in frame, position the smaller aruco next to the origin corner for this reason.
+* need to use a dedicated hardware or software thread for camera to avoid simply reading from the buffer.
 
 

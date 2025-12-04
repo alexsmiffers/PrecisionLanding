@@ -47,7 +47,6 @@ def charuco(settings, camMatrix, distCoeffs):
 
     rate_hz = 20.0
     period = 1.0 / rate_hz
-    print(period)
     next_t = time.time() # returns time in seconds since epoch
 
     rvec = None
@@ -56,8 +55,13 @@ def charuco(settings, camMatrix, distCoeffs):
     # init camera
     with dai.Pipeline() as pipeline:
         # Define source and output
-        cam = pipeline.create(dai.node.Camera).build(sensorFps = 30.3)
-        videoQueue = cam.requestOutput((settings.get('FRAME_W'), settings.get('FRAME_H'))).createOutputQueue()
+        cam = pipeline.create(dai.node.Camera).build()
+        videoQueue = cam.requestOutput((640,480)).createOutputQueue()
+        cam.initialControl.setSharpness(0)     # range: 0..4, default: 1
+        cam.initialControl.setBrightness(0)
+        cam.initialControl.setLumaDenoise(1)   # range: 0..4, default: 1
+        cam.initialControl.setChromaDenoise(4) # range: 0..4, default: 1
+        cam.initialControl.setAutoExposureLimit(5000) # Max 5ms, if in lower light increase.
 
         # Connect to device and start pipeline
         pipeline.start()
@@ -69,7 +73,6 @@ def charuco(settings, camMatrix, distCoeffs):
 
             # Detect ChArUco boards
             charucoCorners, charucoIds, markerCorners, markerIds = charucoDetector.detectBoard(frame)
-            print(charucoCorners)
             # when a board is detected
             if markerIds is not None and markerIds.any() and charucoIds is not None and charucoIds.any():
                 # print("checkpoint charuco detected")
@@ -139,13 +142,13 @@ def aruco(settings, camMatrix, distCoeffs):
     dictionary = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_6X6_100)
     detector = cv.aruco.ArucoDetector(dictionary, detectorParams)
 
-    # MAVLink connection
-    m = mavutil.mavlink_connection(settings.get('SERIAL_DEV'), baud=settings.get('BAUD'))
-    # Wait for heartbeat so target system/component IDs are known (optional but helpful)
-    try:
-        m.wait_heartbeat(timeout=5)
-    except Exception:
-        pass  # continue anyway
+    # # MAVLink connection
+    # m = mavutil.mavlink_connection(settings.get('SERIAL_DEV'), baud=settings.get('BAUD'))
+    # # Wait for heartbeat so target system/component IDs are known (optional but helpful)
+    # try:
+    #     m.wait_heartbeat(timeout=5)
+    # except Exception:
+    #     pass  # continue anyway
 
     fx, fy = camMatrix[0,0], camMatrix[1,1]
     cx, cy = camMatrix[0,2], camMatrix[1,2]
@@ -162,8 +165,13 @@ def aruco(settings, camMatrix, distCoeffs):
     # Create pipeline
     with dai.Pipeline() as pipeline:
         # Define source and output
-        cam = pipeline.create(dai.node.Camera).build()
+        cam = pipeline.create(dai.node.Camera).build(dai.CameraBoardSocket.CAM_B, sensorFps=99)
         videoQueue = cam.requestOutput((640,480)).createOutputQueue()
+        cam.initialControl.setSharpness(0)     # range: 0..4, default: 1
+        cam.initialControl.setBrightness(0)
+        cam.initialControl.setLumaDenoise(1)   # range: 0..4, default: 1
+        cam.initialControl.setChromaDenoise(4) # range: 0..4, default: 1
+        cam.initialControl.setAutoExposureLimit(5000) # Max 5ms, if in lower light increase.
 
         # Connect to device and start pipeline
         pipeline.start()
@@ -219,18 +227,18 @@ def aruco(settings, camMatrix, distCoeffs):
                     if position_valid:
                         print(f"Position (m): x={x_b:.2f}, y={y_b:.2f}, z={z_b:.2f}; Angles (rad): x={angle_x:.2f}, y={angle_y:.2f}")
                     # LANDING_TARGET send (MAVLink2 fields via keyword args are supported by pymavlink)
-                    m.mav.landing_target_send(
-                        int(tnow * 1e6),        # time_usec
-                        0,                      # target_num
-                        mavutil.mavlink.MAV_FRAME_BODY_NED,
-                        float(angle_x), float(angle_y),
-                        0.0,                    # distance (set 0 if using rangefinder)
-                        TAG_SIZE_M, TAG_SIZE_M, # size_x, size_y
-                        x_b, y_b, z_b,          # position in body frame (if available)
-                        [1.0, 0.0, 0.0, 0.0],   # orientation (unused here)
-                        mavutil.mavlink.LANDING_TARGET_TYPE_VISION_FIDUCIAL,
-                        position_valid
-                    )
+                    # m.mav.landing_target_send(
+                    #     int(tnow * 1e6),        # time_usec
+                    #     0,                      # target_num
+                    #     mavutil.mavlink.MAV_FRAME_BODY_NED,
+                    #     float(angle_x), float(angle_y),
+                    #     0.0,                    # distance (set 0 if using rangefinder)
+                    #     TAG_SIZE_M, TAG_SIZE_M, # size_x, size_y
+                    #     x_b, y_b, z_b,          # position in body frame (if available)
+                    #     [1.0, 0.0, 0.0, 0.0],   # orientation (unused here)
+                    #     mavutil.mavlink.LANDING_TARGET_TYPE_VISION_FIDUCIAL,
+                    #     position_valid
+                    # )
 
                 # print("checkpoint pose computed")
                 if settings.get('TEST_MODE') == True:
@@ -252,7 +260,7 @@ def aruco(settings, camMatrix, distCoeffs):
                 loopTime = time.time()-loopstart
                 if loopTime > longestLoop:
                     longestLoop = loopTime
-                    print("New longest time taken for a loop is: ", longestLoop, " on loop: ", iterations)  
+                    print("\033[93m" + "New longest time taken for a loop is: ", longestLoop, " on loop: ", iterations, "\033[0m")  
             iterations+=1        
 # main
 if settings.get('DETECT_MODE') == 'CHARUCO':
