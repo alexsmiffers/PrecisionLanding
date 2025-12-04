@@ -21,7 +21,7 @@ camMatrix = np.load('mtx.npy')
 distCoeffs = np.load('dist.npy')
 
 def charuco(settings, camMatrix, distCoeffs):
-    print("Starting Charuco mode...")
+    print("\x1b[34m"+"Starting Charuco mode..."+"\033[0m")
     # Charuco Initialization
     detectorParams = cv.aruco.DetectorParameters() # uses default parameters at the moment
     dictionary = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_6X6_100)
@@ -35,12 +35,12 @@ def charuco(settings, camMatrix, distCoeffs):
 
     # MAVLink connection
 
-    # m = mavutil.mavlink_connection(settings.get('SERIAL_DEV'), baud=settings.get('BAUD'))
-    # # Wait for heartbeat so target system/component IDs are known (optional but helpful)
-    # try:
-    #     m.wait_heartbeat(timeout=5)
-    # except Exception:
-    #     pass  # continue anyway
+    m = mavutil.mavlink_connection(settings.get('SERIAL_DEV'), baud=settings.get('BAUD'))
+    # Wait for heartbeat so target system/component IDs are known (optional but helpful)
+    try:
+        m.wait_heartbeat(timeout=5)
+    except Exception:
+        pass  # continue anyway
 
     fx, fy = camMatrix[0,0], camMatrix[1,1]
     cx, cy = camMatrix[0,2], camMatrix[1,2]
@@ -129,15 +129,17 @@ def charuco(settings, camMatrix, distCoeffs):
                         cv.drawFrameAxes(drawn, camMatrix, distCoeffs, rvec, tvec, axisLength)
                     cv.imshow("video", drawn)
                     if cv.waitKey(1) == ord('q'):
+                        print("\x1b[31m"+"Program Ended by user"+"\033[0m")
                         break
 
             else:
                 cv.imshow("video", frame)
                 if cv.waitKey(1) == ord('q'):
+                    print("\x1b[31m"+"Program Ended by user"+"\033[0m")
                     break
 
 def aruco(settings, camMatrix, distCoeffs):
-    print("Starting Aruco mode...")
+    print("\x1b[34m"+"Starting Aruco mode..."+"\033[0m")
     detectorParams = cv.aruco.DetectorParameters() # uses default parameters at the moment
     dictionary = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_6X6_100)
     detector = cv.aruco.ArucoDetector(dictionary, detectorParams)
@@ -227,18 +229,18 @@ def aruco(settings, camMatrix, distCoeffs):
                     if position_valid:
                         print(f"Position (m): x={x_b:.2f}, y={y_b:.2f}, z={z_b:.2f}; Angles (rad): x={angle_x:.2f}, y={angle_y:.2f}")
                     # LANDING_TARGET send (MAVLink2 fields via keyword args are supported by pymavlink)
-                    # m.mav.landing_target_send(
-                    #     int(tnow * 1e6),        # time_usec
-                    #     0,                      # target_num
-                    #     mavutil.mavlink.MAV_FRAME_BODY_NED,
-                    #     float(angle_x), float(angle_y),
-                    #     0.0,                    # distance (set 0 if using rangefinder)
-                    #     TAG_SIZE_M, TAG_SIZE_M, # size_x, size_y
-                    #     x_b, y_b, z_b,          # position in body frame (if available)
-                    #     [1.0, 0.0, 0.0, 0.0],   # orientation (unused here)
-                    #     mavutil.mavlink.LANDING_TARGET_TYPE_VISION_FIDUCIAL,
-                    #     position_valid
-                    # )
+                    m.mav.landing_target_send(
+                        int(tnow * 1e6),        # time_usec
+                        0,                      # target_num
+                        mavutil.mavlink.MAV_FRAME_BODY_NED,
+                        float(angle_x), float(angle_y),
+                        0.0,                    # distance (set 0 if using rangefinder)
+                        settings.get('MARKER_SIZE'), settings.get('MARKER_SIZE'), # size_x, size_y
+                        x_b, y_b, z_b,          # position in body frame (if available)
+                        [1.0, 0.0, 0.0, 0.0],   # orientation (unused here)
+                        mavutil.mavlink.LANDING_TARGET_TYPE_VISION_FIDUCIAL,
+                        position_valid
+                    )
 
                 # print("checkpoint pose computed")
                 if settings.get('TEST_MODE') == True:
@@ -249,12 +251,14 @@ def aruco(settings, camMatrix, distCoeffs):
                         cv.drawFrameAxes(drawn, camMatrix, distCoeffs, rvec, tvec, 0.010)
                     cv.imshow("video", drawn)
                     if cv.waitKey(1) == ord('q'):
+                        print("\x1b[31m"+"Program Ended by user"+"\033[0m")
                         break
 
             else:
                 if settings.get('TEST_MODE') == True:
                     cv.imshow("video", frame)
                     if cv.waitKey(1) == ord('q'):
+                        print("\x1b[31m"+"Program Ended by user"+"\033[0m")
                         break
             if iterations>3:
                 loopTime = time.time()-loopstart
@@ -265,7 +269,5 @@ def aruco(settings, camMatrix, distCoeffs):
 # main
 if settings.get('DETECT_MODE') == 'CHARUCO':
     charuco(settings, camMatrix, distCoeffs)
-    print("Program End")
 elif settings.get('DETECT_MODE') == 'ARUCO':
     aruco(settings, camMatrix, distCoeffs)
-    print("Program End")
