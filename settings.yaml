@@ -7,7 +7,7 @@ SQUARES_X: 7               # Number of squares in X direction on Charuco board
 SQUARES_Y: 9               # Number of squares in Y direction on Charuco board
 SQUARE_LENGTH: 0.02       # Length of one square side in meters
 MARKER_LENGTH: 0.01       # Length of one marker side in meters
-TEST_MODE: False            # Set to True to enable visualization for bench testing
+TEST_MODE: True            # Set to True to enable visualization for bench testing
 DETECT_MODE: "ARUCO"  # Options: "ARUCO" or "CHARUCO"
 CAMERA_ID: 0              # Camera ID for OpenCV VideoCapture (if not using DepthAI)
 TAG_ID: 56                  # ArUco marker ID to track for landing
