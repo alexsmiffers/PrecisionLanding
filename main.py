@@ -247,18 +247,30 @@ def aruco(settings, camMatrix, distCoeffs):
                         print(f"Position (m): x={x_b:.2f}, y={y_b:.2f}, z={z_b:.2f}; Angles (rad): x={angle_x:.2f}, y={angle_y:.2f}")
                     
                     # LANDING_TARGET send
-                    m.mav.landing_target_send(
-                        int(tnow * 1e6),        # time_usec
-                        0,                      # target_num
-                        mavutil.mavlink.MAV_FRAME_BODY_NED,
-                        float(angle_x), float(angle_y),
-                        0.0,                    # distance (set 0 if using rangefinder)
-                        settings.get('TAG_SIZE'), settings.get('TAG_SIZE'), # size_x, size_y
-                        x_b, y_b, z_b,          # position in body frame (if available)
-                        [1.0, 0.0, 0.0, 0.0],   # orientation (unused here)
-                        mavutil.mavlink.LANDING_TARGET_TYPE_VISION_FIDUCIAL,
-                        position_valid
-                    )
+                    if settings.get('Sim')==True:
+                        m.mav.landing_target_send(
+                            int(tnow*1e6),
+                            float(angle_x),
+                            float(angle_y),
+                            0.0,              # zero since using a rangefinder
+                            settings['TAG_SIZE'],
+                            settings['TAG_SIZE'],
+                            0,
+                            mavutil.mavlink.MAV_FRAME_BODY_NED
+                        )
+                    else:
+                        m.mav.landing_target_send(
+                            int(tnow * 1e6),        # time_usec
+                            0,                      # target_num
+                            mavutil.mavlink.MAV_FRAME_BODY_NED,
+                            float(angle_x), float(angle_y),
+                            0.0,                    # distance (set 0 if using rangefinder)
+                            settings.get('TAG_SIZE'), settings.get('TAG_SIZE'),               # size_x, size_y
+                            x_b, y_b, z_b,          # position in body frame (if available)
+                            [1.0, 0.0, 0.0, 0.0],   # orientation (unused here)
+                            mavutil.mavlink.LANDING_TARGET_TYPE_VISION_FIDUCIAL,
+                            position_valid
+                        )
 
                 # print("checkpoint pose computed")
                 if settings.get('TEST_MODE') == True:
