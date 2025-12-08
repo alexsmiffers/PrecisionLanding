@@ -54,9 +54,18 @@ source venv/bin/activate
 mavproxy.py --master=/dev/serial0,57600
 ```
 
+### Raspberry Pi Operation
+```bash
+source venv/bin/activate
+cd PrecisionLanding/
+python3 main.py
+```
+
 source depthai-venv/bin/activate
 chmod +x myscript.py
 ./myscript.py
+
+sim_vehicle.py -v ArduCopter -f quad --console --map
 
 mavproxy.py --master=/dev/serial0,57600
 
@@ -82,5 +91,9 @@ Citation for OpenCV:
 * print on white filament and paint the insides 
 * need to make sure you switch to small aruco detection while both are in frame, position the smaller aruco next to the origin corner for this reason.
 * need to use a dedicated hardware or software thread for camera to avoid simply reading from the buffer.
+* minimum send rate is 1Hz
+* tcp, control sim using console is hard
+* use apm planner if possible
+* 
 
 
