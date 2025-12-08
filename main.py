@@ -163,9 +163,8 @@ def aruco(settings, camMatrix, distCoeffs):
 
     # MAVLink connection
     # m = mavutil.mavlink_connection(settings.get('SERIAL_DEV'), baud=settings.get('BAUD'))
-    
+
     mavutil.set_dialect("ardupilotmega")
-    mavutil.set_mavlink_version(2)
     m = mavutil.mavlink_connection('tcp:192.168.10.233:5760', baud=settings.get('BAUD'))
     # Wait for heartbeat so target system/component IDs are known (optional but helpful)
     try:
@@ -253,13 +252,13 @@ def aruco(settings, camMatrix, distCoeffs):
                     if settings.get('Sim')==True:
                         m.mav.landing_target_send(
                             int(tnow*1e6),
+                            mavutil.mavlink.MAV_FRAME_BODY_NED,
+                            0,
                             float(angle_x),
                             float(angle_y),
                             0.0,              # zero since using a rangefinder
                             settings['TAG_SIZE'],
-                            settings['TAG_SIZE'],
-                            0,
-                            mavutil.mavlink.MAV_FRAME_BODY_NED
+                            settings['TAG_SIZE']
                         )
                     else:
                         m.mav.landing_target_send(
