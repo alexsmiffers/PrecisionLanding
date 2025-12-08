@@ -151,7 +151,7 @@ def aruco(settings, camMatrix, distCoeffs):
     detector = cv.aruco.ArucoDetector(dictionary, detectorParams)
 
     # MAVLink connection
-    m = mavutil.mavlink_connection(settings.get('SERIAL_DEV'), baud=settings.get('BAUD'))
+    m = mavutil.mavlink_connection(tcp:192.168.10.233:5760, baud=settings.get('BAUD'))
     # Wait for heartbeat so target system/component IDs are known (optional but helpful)
     try:
         m.wait_heartbeat(timeout=5)
