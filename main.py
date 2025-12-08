@@ -34,7 +34,6 @@ def charuco(settings, camMatrix, distCoeffs):
     charucoDetector = cv.aruco.CharucoDetector(board, charucoParams, detectorParams)
 
     # MAVLink connection
-
     m = mavutil.mavlink_connection(settings.get('SERIAL_DEV'), baud=settings.get('BAUD'))
     # Wait for heartbeat so target system/component IDs are known (optional but helpful)
     try:
@@ -152,6 +151,7 @@ def aruco(settings, camMatrix, distCoeffs):
 
     # MAVLink connection
     # m = mavutil.mavlink_connection(settings.get('SERIAL_DEV'), baud=settings.get('BAUD'))
+    mavutil.set_mavlink_version(2)
     m = mavutil.mavlink_connection('tcp:192.168.10.233:5760', baud=settings.get('BAUD'))
     # Wait for heartbeat so target system/component IDs are known (optional but helpful)
     try:
