@@ -102,18 +102,30 @@ def charuco(settings, camMatrix, distCoeffs):
                         print(f"Position (m): x={x_b:.2f}, y={y_b:.2f}, z={z_b:.2f}; Angles (rad): x={angle_x:.2f}, y={angle_y:.2f}")
                     # LANDING_TARGET send (MAVLink2 fields via keyword args are supported by pymavlink)
                     
-                    m.mav.landing_target_send(
-                        int(tnow * 1e6),        # time_usec
-                        0,                      # target_num
-                        mavutil.mavlink.MAV_FRAME_BODY_NED,
-                        float(angle_x), float(angle_y),
-                        0.0,                    # distance (set 0 if using rangefinder)
-                        settings.get('SQUARE_LENGTH'), settings.get('SQUARE_LENGTH'),               # size_x, size_y
-                        x_b, y_b, z_b,          # position in body frame (if available)
-                        [1.0, 0.0, 0.0, 0.0],   # orientation (unused here)
-                        mavutil.mavlink.LANDING_TARGET_TYPE_VISION_FIDUCIAL,
-                        position_valid
-                    )
+                    if settings.get('Sim')==True:
+                        m.mav.landing_target_send(
+                            int(tnow*1e6),
+                            float(angle_x),
+                            float(angle_y),
+                            0.0,              # zero since using a rangefinder
+                            settings['MARKER_SIZE'],
+                            settings['MARKER_SIZE'],
+                            0,
+                            mavutil.mavlink.MAV_FRAME_BODY_NED
+                        )
+                    else:
+                        m.mav.landing_target_send(
+                            int(tnow * 1e6),        # time_usec
+                            0,                      # target_num
+                            mavutil.mavlink.MAV_FRAME_BODY_NED,
+                            float(angle_x), float(angle_y),
+                            0.0,                    # distance (set 0 if using rangefinder)
+                            settings.get('SQUARE_LENGTH'), settings.get('SQUARE_LENGTH'),               # size_x, size_y
+                            x_b, y_b, z_b,          # position in body frame (if available)
+                            [1.0, 0.0, 0.0, 0.0],   # orientation (unused here)
+                            mavutil.mavlink.LANDING_TARGET_TYPE_VISION_FIDUCIAL,
+                            position_valid
+                        )
 
 
                 # print("checkpoint pose computed")
@@ -151,7 +163,6 @@ def aruco(settings, camMatrix, distCoeffs):
 
     # MAVLink connection
     # m = mavutil.mavlink_connection(settings.get('SERIAL_DEV'), baud=settings.get('BAUD'))
-    mavutil.set_mavlink_version(2)
     m = mavutil.mavlink_connection('tcp:192.168.10.233:5760', baud=settings.get('BAUD'))
     # Wait for heartbeat so target system/component IDs are known (optional but helpful)
     try:
@@ -224,7 +235,7 @@ def aruco(settings, camMatrix, distCoeffs):
                         y_b = float(tvec[0])
                         z_b = float(tvec[1])
                         position_valid = 1
-                        # Re-derive angles from tvec for consistency
+                        # Derive angles from tvec
                         angle_x = math.atan2(y_b, x_b)  # body: forward=x_b, right=y_b
                         angle_y = math.atan2(z_b, x_b)  # body: down=z_b, forward=x_b
 
