@@ -85,9 +85,9 @@ def charuco(settings, camMatrix, distCoeffs):
                 if validPose:
                     # Camera frame: x right, y down, z forward
                     # Convert to BODY(NED): x forward, y right, z down
-                    x_b = float(tvec[2])
-                    y_b = float(tvec[0])
-                    z_b = float(tvec[1])
+                    x_b = float(tvec[2][0]) # second slice is because rvec, tvec are multidimensional
+                    y_b = float(tvec[0][0])
+                    z_b = float(tvec[1][0])
                     position_valid = 1
                     # Re-derive angles from tvec for consistency
                     angle_x = math.atan2(y_b, x_b)  # body: forward=x_b, right=y_b
@@ -151,7 +151,8 @@ def aruco(settings, camMatrix, distCoeffs):
     detector = cv.aruco.ArucoDetector(dictionary, detectorParams)
 
     # MAVLink connection
-    m = mavutil.mavlink_connection(tcp:192.168.10.233:5760, baud=settings.get('BAUD'))
+    # m = mavutil.mavlink_connection(settings.get('SERIAL_DEV'), baud=settings.get('BAUD'))
+    m = mavutil.mavlink_connection('tcp:192.168.10.233:5760', baud=settings.get('BAUD'))
     # Wait for heartbeat so target system/component IDs are known (optional but helpful)
     try:
         m.wait_heartbeat(timeout=5)
@@ -173,7 +174,7 @@ def aruco(settings, camMatrix, distCoeffs):
     # Create pipeline
     with dai.Pipeline() as pipeline:
         # Define source and output
-        cam = pipeline.create(dai.node.Camera).build(dai.CameraBoardSocket.CAM_B, sensorFps=30)
+        cam = pipeline.create(dai.node.Camera).build(dai.CameraBoardSocket.CAM_C, sensorFps=30)
         videoQueue = cam.requestOutput((640,480)).createOutputQueue()
         cam.initialControl.setSharpness(0)     # range: 0..4, default: 1
         cam.initialControl.setBrightness(0)
@@ -234,7 +235,7 @@ def aruco(settings, camMatrix, distCoeffs):
                     if position_valid:
                         print(f"Position (m): x={x_b:.2f}, y={y_b:.2f}, z={z_b:.2f}; Angles (rad): x={angle_x:.2f}, y={angle_y:.2f}")
                     
-                    LANDING_TARGET send (MAVLink2 fields via keyword args are supported by pymavlink)
+                    # LANDING_TARGET send
                     m.mav.landing_target_send(
                         int(tnow * 1e6),        # time_usec
                         0,                      # target_num
