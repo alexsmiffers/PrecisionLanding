@@ -139,6 +139,12 @@ def charuco(settings, camMatrix, distCoeffs):
                     break
 
 def aruco(settings, camMatrix, distCoeffs):
+    # change to stabilize flight mode
+    # arm drone
+    # always running and when it sees an aruco 
+    # when detects aruco, change to guided to centre with the aruco marker
+    # when under 5m change to land mode.
+    # change to landing flight mode
     print("\x1b[34m"+"Starting Aruco mode..."+"\033[0m")
     detectorParams = cv.aruco.DetectorParameters() # uses default parameters at the moment
     dictionary = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_6X6_100)
@@ -167,7 +173,7 @@ def aruco(settings, camMatrix, distCoeffs):
     # Create pipeline
     with dai.Pipeline() as pipeline:
         # Define source and output
-        cam = pipeline.create(dai.node.Camera).build(dai.CameraBoardSocket.CAM_B, sensorFps=99)
+        cam = pipeline.create(dai.node.Camera).build(dai.CameraBoardSocket.CAM_B, sensorFps=30)
         videoQueue = cam.requestOutput((640,480)).createOutputQueue()
         cam.initialControl.setSharpness(0)     # range: 0..4, default: 1
         cam.initialControl.setBrightness(0)
@@ -212,8 +218,7 @@ def aruco(settings, camMatrix, distCoeffs):
 
                     if okp:
                         # Camera frame: x right, y down, z forward
-                        # Convert to BODY(NED): x forward, y right, z down
-                        # Approximate mapping: x_b =  tvec[2]; y_b =  tvec[0]; z_b =  tvec[1]
+                        # Convert to NED: x forward, y right, z down
                         x_b = float(tvec[2])
                         y_b = float(tvec[0])
                         z_b = float(tvec[1])
@@ -228,14 +233,15 @@ def aruco(settings, camMatrix, distCoeffs):
                     next_t += period
                     if position_valid:
                         print(f"Position (m): x={x_b:.2f}, y={y_b:.2f}, z={z_b:.2f}; Angles (rad): x={angle_x:.2f}, y={angle_y:.2f}")
-                    # LANDING_TARGET send (MAVLink2 fields via keyword args are supported by pymavlink)
+                    
+                    LANDING_TARGET send (MAVLink2 fields via keyword args are supported by pymavlink)
                     m.mav.landing_target_send(
                         int(tnow * 1e6),        # time_usec
                         0,                      # target_num
                         mavutil.mavlink.MAV_FRAME_BODY_NED,
                         float(angle_x), float(angle_y),
                         0.0,                    # distance (set 0 if using rangefinder)
-                        settings.get('MARKER_SIZE'), settings.get('MARKER_SIZE'), # size_x, size_y
+                        settings.get('TAG_SIZE'), settings.get('TAG_SIZE'), # size_x, size_y
                         x_b, y_b, z_b,          # position in body frame (if available)
                         [1.0, 0.0, 0.0, 0.0],   # orientation (unused here)
                         mavutil.mavlink.LANDING_TARGET_TYPE_VISION_FIDUCIAL,
@@ -265,7 +271,8 @@ def aruco(settings, camMatrix, distCoeffs):
                 if loopTime > longestLoop:
                     longestLoop = loopTime
                     print("\033[93m" + "New longest time taken for a loop is: ", longestLoop, " on loop: ", iterations, "\033[0m")  
-            iterations+=1        
+            iterations+=1    
+
 # main
 if settings.get('DETECT_MODE') == 'CHARUCO':
     charuco(settings, camMatrix, distCoeffs)

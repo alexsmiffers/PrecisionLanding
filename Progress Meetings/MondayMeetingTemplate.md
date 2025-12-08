@@ -3,7 +3,7 @@
 ## Date and Time
 
 01/12/2025
-14:00
+13:20
 
 ---
 
@@ -11,11 +11,10 @@
 
 * Summary of work completed since last meeting:
 
-  * ARUCO marker generation script "aruco_gen.py" which creates markers.
-  * Camera calibration script "camera_calibration.py" which gives distortion and camera matrix of attached camera.
-  * Functional pose detection for ARUCO markers script "aruco.py". Displays DEPTHAI camera feed and draws axes. Stores translation and rotation vectors stored as array of tvecs and rvecs.
-  * Wired Pixhawk and Raspi fasic MavProxy communication via UART with Raspi 5 and Pixhawk V6X.
-  * Updated README and github to reflect important info.
+  * Developed script main.py which can be configured to get the pos of aruco or charuco.
+  * The monocolour stereo cameras can use a greater framerate and have been getting better detection.
+  * Tested the pose estimation and it is accurate to approx 1cm.
+  * 
 
 ---
 
@@ -23,27 +22,27 @@
 
 * Deliverable 1:
 
-  * Functional Python3 script to dynamically send commands to Ardupilot via Mavproxy or Mavutil.
-  * Due: Friday 5th December
+  * 
+  * Due: Friday 12th December
   
 * Deliverable 2:
 
-  * Existing Code annotated, commented and linked to appropriate flowchart or diagram. I.e. Node diagram for DEPTHAI camera.
-  * Due: Friday 5th December
+  * 
+  * Due: Friday 12th December
 
 * Deliverable 3:
 
-  * Flowchart or diagram for Mavlink - Ardupilot communication script including physical connections.
-  * Due: Friday 5th December
+  * 
+  * Due: Friday 12th December
 ---
 
 ## Goals and Priorities
 
 * Primary goals for this week:
 
-  * Research guided flight mode and Ardupilot functions such as AC_WPNav. Determine what information to send across the UART. Modify "aruco.py" script to output those inputs.
-  * Write script to send information to Ardupilot.
-  * Prepare to use mavros, research into usage and begin implementation.
+  * 
+  * 
+  * 
 
 ---
 
@@ -51,8 +50,8 @@
 
 * Any known issues that may impact progress:
 
-  * Told not to use ros for simulation. Will see what difficulties are encountered.
-  * Real flight testing is very time consuming and dangerous, simulation is much preferred.
+  * Danger of poorly tested code in a real flight configuration.
+  * Limited access to gcs and linux for ros simulation.
 
 ---
 
@@ -72,10 +71,19 @@
 
 ## Notes / Additional Comments
 
-* Try using m = mavutil.mavlink_connection('/dev/serial0', baud=57600).
-* Look into AC_WPN.
-* Second half of week maybe weds start doing ros simulation.
-* First half of week sending message to ardupilot.
-* Look into guided flight mode and ned position.
-* General approach should be to pretend raspi is a gcs.
-* start with guided flight mode and change to land flight mode.
+* Need to check the purpose of the guided mode.
+* need to 
+* robustness and detection range
+* larger size means reduced detection range, 4x4 is better range
+* robustness is reduction of false readings, 6x6 is better for robustness
+* 5x5 might be sweetspot
+* no need for custom dict
+* start with 50 for size
+at 15m can only detect largest
+as you get closer like 1m large marker will be out of the frame
+check with SITL first
+use 4 tech for the reading
+
+use sq pnp for pose estimation
+sitl already cofnigured on the pi
+
