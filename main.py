@@ -170,6 +170,11 @@ def aruco(settings, camMatrix, distCoeffs):
     except Exception:
         pass  # continue anyway
 
+    print("Heartbeat from system (system %u component %u)" %
+      (m.target_system, m.target_component))
+
+    m.mav.command_long_send(m.target_system, m.target_component, mavutil.mavlink.MAV_CMD_COMPONENT_ARM_DISARM,0,1,0,0,0,0,0,0)
+
     fx, fy = camMatrix[0,0], camMatrix[1,1]
     cx, cy = camMatrix[0,2], camMatrix[1,2]
 
@@ -283,7 +288,6 @@ def aruco(settings, camMatrix, distCoeffs):
                     if cv.waitKey(1) == ord('q'):
                         print("\x1b[31m"+"Program Ended by user"+"\033[0m")
                         break
-
             else:
                 if settings.get('TEST_MODE') == True:
                     cv.imshow("video", frame)
