@@ -94,6 +94,12 @@ Citation for OpenCV:
 * minimum send rate is 1Hz
 * tcp, control sim using console is hard
 * use apm planner if possible
-* 
+* ok learning about SITL has taught me a lot about working with pymavlink so was best idea.
+* change to stabilize flight mode
+* arm drone
+* always running and when it sees an aruco 
+* when detects aruco, change to guided to centre with the aruco marker
+* when under 5m change to land mode.
+* change to landing flight mode
 
 
