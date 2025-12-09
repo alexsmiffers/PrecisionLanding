@@ -235,14 +235,14 @@ def aruco(settings, camMatrix, distCoeffs):
 
                     if okp:
                         # Camera frame: x right, y down, z forward
-                        # Convert to NED: x forward, y right, z down
+                        # Convert to NED: +x forward, +y right, z down
                         x_b = float(tvec[2])
                         y_b = float(tvec[0])
                         z_b = float(tvec[1])
                         position_valid = 1
                         # Derive angles from tvec
-                        angle_x = math.atan2(y_b, x_b)  # body: forward=x_b, right=y_b
-                        angle_y = math.atan2(z_b, x_b)  # body: down=z_b, forward=x_b
+                        angle_x = math.atan2(y_b, x_b)  # forward=x_b, right=y_b
+                        angle_y = math.atan2(z_b, x_b)  # down=z_b, forward=x_b
 
                 # Throttle to target rate
                 tnow = time.time()

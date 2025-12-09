@@ -14,3 +14,4 @@ TAG_ID: 56                  # ArUco marker ID to track for landing
 TAG_SIZE: 0.139             # Size of the ArUco marker in meters
 USE_FULL_POSE: True
 Sim: True
+ALTITUDE: 10.0

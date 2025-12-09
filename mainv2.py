@@ -171,8 +171,8 @@ def camera():
 
 # ---------------------main----------------------
 # Load settings from YAML
-with open('settings.yaml', 'r') as f:
-    settings = yaml.safe_load(f)
+with open('settings.yaml', 'r') as file:
+    settings = yaml.safe_load(file)
 
 # Load camera matrix and distortion coefficients
 camMatrix = np.load('mtx.npy')
