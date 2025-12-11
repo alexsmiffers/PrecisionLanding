@@ -23,7 +23,7 @@ First:
    ```
 8. Join on viewer device using a VNC client like TigerVNC. 
 
-### Raspberry Pi Dependencies v2
+### Raspberry Pi Dependencies
 ``` bash
 git clone https://github.com/luxonis/depthai-core.git && cd depthai-core
 python3 -m venv venv
@@ -55,17 +55,35 @@ mavproxy.py --master=/dev/serial0,57600
 ```
 
 ### Raspberry Pi Operation
+**Terminal 1:**
 ```bash
 source venv/bin/activate
 cd PrecisionLanding/
-python3 main.py
+python3 mainv3.py
+```
+
+**Terminal 2:**
+```bash
+sim_vehicle.py -v ArduCopter -f quad
+```
+Wait for it to init and then:
+```bash
+set moddebug 3
+rc 3 1500
+param set RC10_OPTION 39
+rc 10 2000
+Mode LOITER
 ```
 
 source depthai-venv/bin/activate
 chmod +x myscript.py
 ./myscript.py
 
-sim_vehicle.py -v ArduCopter -f quad --console --map
+module load auxopt
+module load message
+
+set throttle using: 
+
 
 mavproxy.py --master=/dev/serial0,57600
 
@@ -77,10 +95,7 @@ X: right, Y: down, Z: forward (optical axis).
 Great Resource:
 https://landmarklanding.com/blogs/landmark-lab-notes/ardupilot-precision-landing?srsltid=AfmBOooBo9DkUGmmoWkkiA64ibtNPDiqPz8BiBHSH0zS63usgCl28VDP
 
-Citation for OpenCV:
-‍S. Garrido-Jurado, R. Muñoz-Salinas, F. J. Madrid-Cuevas, and M. J. Marín-Jiménez. 2014. "Automatic generation and detection of highly reliable fiducial markers under occlusion". Pattern Recogn. 47, 6 (June 2014), 2280-2292. DOI=10.1016/j.patcog.2014.01.005
-
-# Notes:
+## Notes:
 * Once flight controller (FC) is finalised investigate powering raspi directly from FC to minimise wiring. Only works on boards which TELEM outputs +5V not +3V3.
 * Global shutter is ideal but not required, evaluate the difference in some options.
 * Suggests raspi zero 2 W or better which has 1.1 GHz quad core processor and 512 MB ram.
@@ -96,10 +111,14 @@ Citation for OpenCV:
 * use apm planner if possible
 * ok learning about SITL has taught me a lot about working with pymavlink so was best idea.
 * change to stabilize flight mode
-* arm drone
-* always running and when it sees an aruco 
-* when detects aruco, change to guided to centre with the aruco marker
-* when under 5m change to land mode.
-* change to landing flight mode
+* Arm drone
+* Always running and when it sees an aruco 
+* When detects aruco, change to guided to centre with the aruco marker
+* When under 5m change to land mode.
+* Change to landing flight mode
+* Citation for OpenCV:
+‍S. Garrido-Jurado, R. Muñoz-Salinas, F. J. Madrid-Cuevas, and M. J. Marín-Jiménez. 2014. "Automatic generation and detection of highly reliable fiducial markers under occlusion". Pattern Recogn. 47, 6 (June 2014), 2280-2292. DOI=10.1016/j.patcog.2014.01.005
+
+## References
 
 
