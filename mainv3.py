@@ -21,8 +21,8 @@ def aruco(settings, camMatrix, distCoeffs):
     print("\x1b[31m"+"Starting mavlink communication..."+"\033[0m")
     # MAVLink connection
     if settings.get('Sim')==True:
-        # m = mavutil.mavlink_connection('tcp:192.168.10.233:5762', baud=settings.get('BAUD'))
-        m = mavutil.mavlink_connection('udpin:127.0.0.1:14550', baud=settings.get('BAUD'))
+        m = mavutil.mavlink_connection('tcp:192.168.10.201:5762', baud=settings.get('BAUD'))
+        # m = mavutil.mavlink_connection('udpin:192.168.10.201:14550', baud=settings.get('BAUD'))
         print(m.mav)
     else:
         m = mavutil.mavlink_connection(settings.get('SERIAL_DEV'), baud=settings.get('BAUD'))
@@ -37,7 +37,6 @@ def aruco(settings, camMatrix, distCoeffs):
     if settings.get('Sim') == True: # only in SITL to prevent unintended behaviour on test drone
         m.mav.command_long_send(m.target_system, m.target_component, mavutil.mavlink.MAV_CMD_DO_SET_MODE, 0, mavutil.mavlink.MAV_MODE_FLAG_CUSTOM_MODE_ENABLED, 4, 0, 0, 0, 0, 0) # set to guided disarmed mode
         msg = m.recv_match(type='COMMAND_ACK', blocking=True)
-        count=0
         print(msg)
 
         m.mav.command_long_send(m.target_system, m.target_component, mavutil.mavlink.MAV_CMD_COMPONENT_ARM_DISARM,0,1,0,0,0,0,0,0) #arm drone
