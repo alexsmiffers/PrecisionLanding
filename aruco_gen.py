@@ -34,12 +34,16 @@ import sys # for CLI args
 import cv2 # computer vision library
 import depthai as dai # depthai library
 
-marker_size = 200 # size of marker image in pixels
-marker_id = int(sys.argv[1]) # ID of the marker to generate
+marker_size = 100 # size of marker image in pixels
 save_folder = "markers" # folder to save the generated marker
 
-dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250) #init pre defined dictionary to use
+dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50) #init pre defined dictionary to use
 print(dictionary)
 print(type(dictionary))
-markerImage = cv2.aruco.generateImageMarker(dictionary, marker_id, marker_size) # generate marker image with id from CLI
-cv2.imwrite(f"{save_folder}/marker"+str(marker_id)+".png", markerImage) 
+
+for i in range(6, 8):
+    print("Generating marker ID:", i)
+    markerImage = cv2.aruco.generateImageMarker(dictionary, i, marker_size) # generate marker image with id from CLI
+    cv2.imshow("marker", markerImage)
+    cv2.imwrite(f"{save_folder}/4x4marker"+str(i)+".png", markerImage) 
+    cv2.waitKey(1000) # display each marker for 1000ms

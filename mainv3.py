@@ -15,14 +15,14 @@ def center_from_corners(corners):
 def aruco(settings, camMatrix, distCoeffs):
     print("\x1b[34m"+"Starting Aruco mode..."+"\033[0m")
     detectorParams = cv.aruco.DetectorParameters() # uses default parameters at the moment
-    dictionary = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_6X6_100)
+    dictionary = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_5X5_50)
     detector = cv.aruco.ArucoDetector(dictionary, detectorParams)
 
     print("\x1b[31m"+"Starting mavlink communication..."+"\033[0m")
     # MAVLink connection
     if settings.get('Sim')==True:
-        m = mavutil.mavlink_connection('tcp:192.168.10.201:5762', baud=settings.get('BAUD'))
-        # m = mavutil.mavlink_connection('udpin:192.168.10.201:14550', baud=settings.get('BAUD'))
+        # m = mavutil.mavlink_connection('tcp:192.168.10.201:5762', baud=settings.get('BAUD'))
+        m = mavutil.mavlink_connection('udpin:127.0.0.1:14550', baud=settings.get('BAUD'))
         print(m.mav)
     else:
         m = mavutil.mavlink_connection(settings.get('SERIAL_DEV'), baud=settings.get('BAUD'))
@@ -34,30 +34,30 @@ def aruco(settings, camMatrix, distCoeffs):
     print(f"\x1b[31mHeartbeat received from system: {m.target_system} and component: {m.target_component}\033[0m")
 
     # Declare drone initial states
-    if settings.get('Sim') == True: # only in SITL to prevent unintended behaviour on test drone
-        m.mav.command_long_send(m.target_system, m.target_component, mavutil.mavlink.MAV_CMD_DO_SET_MODE, 0, mavutil.mavlink.MAV_MODE_FLAG_CUSTOM_MODE_ENABLED, 4, 0, 0, 0, 0, 0) # set to guided disarmed mode
-        msg = m.recv_match(type='COMMAND_ACK', blocking=True)
-        print(msg)
+    #if settings.get('Sim') == True: # only in SITL to prevent unintended behaviour on test drone
+        # m.mav.command_long_send(m.target_system, m.target_component, mavutil.mavlink.MAV_CMD_DO_SET_MODE, 0, mavutil.mavlink.MAV_MODE_FLAG_CUSTOM_MODE_ENABLED, 4, 0, 0, 0, 0, 0) # set to guided disarmed mode
+        # msg = m.recv_match(type='COMMAND_ACK', blocking=True)
+        # print(msg)
 
-        m.mav.command_long_send(m.target_system, m.target_component, mavutil.mavlink.MAV_CMD_COMPONENT_ARM_DISARM,0,1,0,0,0,0,0,0) #arm drone
-        msg = m.recv_match(type='COMMAND_ACK', blocking=True)
-        print(msg)
+        # m.mav.command_long_send(m.target_system, m.target_component, mavutil.mavlink.MAV_CMD_COMPONENT_ARM_DISARM,0,1,0,0,0,0,0,0) #arm drone
+        # msg = m.recv_match(type='COMMAND_ACK', blocking=True)
+        # print(msg)
 
-        m.mav.command_long_send(m.target_system, m.target_component, mavutil.mavlink.MAV_CMD_NAV_TAKEOFF, 0, 0, 0, 0, 0, 0, 0, settings.get("ALTITUDE")) # takeoff to desired ALT
-        msg = m.recv_match(type='COMMAND_ACK', blocking=True)
-        print(msg)
+        # m.mav.command_long_send(m.target_system, m.target_component, mavutil.mavlink.MAV_CMD_NAV_TAKEOFF, 0, 0, 0, 0, 0, 0, 0, settings.get("ALTITUDE")) # takeoff to desired ALT
+        # msg = m.recv_match(type='COMMAND_ACK', blocking=True)
+        # print(msg)
 
-        m.mav.param_set_send(m.target_system, m.target_component, b'PLND_ENABLED', 1, mavutil.mavlink.MAV_PARAM_TYPE_REAL32) # enable precision landing as the landing type
-        m.mav.param_set_send(m.target_system, m.target_component, b'PLND_TYPE', 1, mavutil.mavlink.MAV_PARAM_TYPE_REAL32) # set PLND input as mavlink
-        m.mav.param_set_send(m.target_system, m.target_component, b'PLND_USEGPS', 0, mavutil.mavlink.MAV_PARAM_TYPE_REAL32) # set PLND input as mavlink
-        m.mav.param_set_send(m.target_system, m.target_component, b'SIM_PLD_ENABLE', 1, mavutil.mavlink.MAV_PARAM_TYPE_REAL32)
-        # m.mav.param_set_send(m.target_system, m.target_component, b'SIM_PLD_LAT', -35.3632, mavutil.mavlink.MAV_PARAM_TYPE_REAL32)
-        # m.mav.param_set_send(m.target_system, m.target_component, b'SIM_PLD_LON', 149.1652, mavutil.mavlink.MAV_PARAM_TYPE_REAL32)
-        m.mav.param_set_send(m.target_system, m.target_component, b'RNGFND1_TYPE', 1, mavutil.mavlink.MAV_PARAM_TYPE_REAL32)
-        m.mav.param_set_send(m.target_system, m.target_component, b'RNGFND1_MIN_CM', 0, mavutil.mavlink.MAV_PARAM_TYPE_REAL32)
-        m.mav.param_set_send(m.target_system, m.target_component, b'RNGFND1_MAX_CM', 4000, mavutil.mavlink.MAV_PARAM_TYPE_REAL32)
-        m.mav.param_set_send(m.target_system, m.target_component, b'RNGFND1_PIN', 0, mavutil.mavlink.MAV_PARAM_TYPE_REAL32)
-        m.mav.param_set_send(m.target_system, m.target_component, b'RNGFND1_SCALING', 12.12, mavutil.mavlink.MAV_PARAM_TYPE_REAL32)
+        # m.mav.param_set_send(m.target_system, m.target_component, b'PLND_ENABLED', 1, mavutil.mavlink.MAV_PARAM_TYPE_REAL32) # enable precision landing as the landing type
+        # m.mav.param_set_send(m.target_system, m.target_component, b'PLND_TYPE', 1, mavutil.mavlink.MAV_PARAM_TYPE_REAL32) # set PLND input as mavlink
+        # # m.mav.param_set_send(m.target_system, m.target_component, b'PLND_USEGPS', 0, mavutil.mavlink.MAV_PARAM_TYPE_REAL32) # set PLND input as mavlink
+        # m.mav.param_set_send(m.target_system, m.target_component, b'SIM_PLD_ENABLE', 1, mavutil.mavlink.MAV_PARAM_TYPE_REAL32)
+        # # m.mav.param_set_send(m.target_system, m.target_component, b'SIM_PLD_LAT', -35.3632, mavutil.mavlink.MAV_PARAM_TYPE_REAL32)
+        # # m.mav.param_set_send(m.target_system, m.target_component, b'SIM_PLD_LON', 149.1652, mavutil.mavlink.MAV_PARAM_TYPE_REAL32)
+        # m.mav.param_set_send(m.target_system, m.target_component, b'RNGFND1_TYPE', 1, mavutil.mavlink.MAV_PARAM_TYPE_REAL32)
+        # m.mav.param_set_send(m.target_system, m.target_component, b'RNGFND1_MIN_CM', 0, mavutil.mavlink.MAV_PARAM_TYPE_REAL32)
+        # m.mav.param_set_send(m.target_system, m.target_component, b'RNGFND1_MAX_CM', 4000, mavutil.mavlink.MAV_PARAM_TYPE_REAL32)
+        # m.mav.param_set_send(m.target_system, m.target_component, b'RNGFND1_PIN', 0, mavutil.mavlink.MAV_PARAM_TYPE_REAL32)
+        # m.mav.param_set_send(m.target_system, m.target_component, b'RNGFND1_SCALING', 12.12, mavutil.mavlink.MAV_PARAM_TYPE_REAL32)
 
     # Frequency Match Init
     rate_hz = 20.0
@@ -114,7 +114,7 @@ def aruco(settings, camMatrix, distCoeffs):
                 if retval:
                     # Camera frame: x right, y down, z forward
                     # Convert to NED: x forward, y right, z down
-                    x_b = float(tvec[2])
+                    x_b = float(tvec[2])*-1
                     y_b = float(tvec[0])
                     z_b = float(tvec[1])
                     position_valid = 1
@@ -161,7 +161,7 @@ def aruco(settings, camMatrix, distCoeffs):
                             x=float(x_b), 
                             y=float(y_b), 
                             z=float(z_b),          # position in body frame (if available)
-                            q=[1.0, 0.0, 0.0, 0.0],   # orientation (unused here)
+                            # q=[1.0, 0.0, 0.0, 0.0],   # orientation (unused here)
                             type=mavutil.mavlink.LANDING_TARGET_TYPE_VISION_FIDUCIAL,
                             position_valid=1
                         )

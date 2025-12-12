@@ -103,8 +103,13 @@ save_folder = "calibration_images"
 # Create pipeline
 with dai.Pipeline() as pipeline:
     # Define source and output
-    cam = pipeline.create(dai.node.Camera).build()
+    cam = pipeline.create(dai.node.Camera).build(dai.CameraBoardSocket.CAM_C, sensorFps=30)
     videoQueue = cam.requestOutput((640,480)).createOutputQueue()
+    cam.initialControl.setSharpness(0)     # range: 0..4, default: 1
+    cam.initialControl.setBrightness(0)
+    cam.initialControl.setLumaDenoise(1)   # range: 0..4, default: 1
+    cam.initialControl.setChromaDenoise(4) # range: 0..4, default: 1
+    cam.initialControl.setAutoExposureLimit(20000) # Max 5ms, if in lower light increase.
 
     # Connect to device and start pipeline
     pipeline.start()
@@ -139,6 +144,7 @@ with dai.Pipeline() as pipeline:
         if key == ord('i'):
             cv2.imwrite(f"{save_folder}/calib{count}.jpg", frame)
             count += 1
+
         elif key == ord('q'):
             print(rvecs, tvecs)
             cv2.destroyAllWindows()
