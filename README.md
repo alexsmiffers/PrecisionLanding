@@ -72,7 +72,7 @@ set moddebug 3
 rc 3 1500
 param set RC10_OPTION 39
 rc 10 2000
-Mode LOITER
+mode LOITER
 ```
 
 source depthai-venv/bin/activate
@@ -94,6 +94,18 @@ X: right, Y: down, Z: forward (optical axis).
 
 Great Resource:
 https://landmarklanding.com/blogs/landmark-lab-notes/ardupilot-precision-landing?srsltid=AfmBOooBo9DkUGmmoWkkiA64ibtNPDiqPz8BiBHSH0zS63usgCl28VDP
+
+## flight 1 plan:
+* enable script
+* manual arm
+* manual takeoff to 3m
+* set throttle neutral
+* set loiter mode
+* turn on precision loiter with controller
+* once satisfied or to abort change mode to stabilise
+* land manually
+* disable script
+
 
 ## Notes:
 * Once flight controller (FC) is finalised investigate powering raspi directly from FC to minimise wiring. Only works on boards which TELEM outputs +5V not +3V3.
@@ -120,5 +132,5 @@ https://landmarklanding.com/blogs/landmark-lab-notes/ardupilot-precision-landing
 ‍S. Garrido-Jurado, R. Muñoz-Salinas, F. J. Madrid-Cuevas, and M. J. Marín-Jiménez. 2014. "Automatic generation and detection of highly reliable fiducial markers under occlusion". Pattern Recogn. 47, 6 (June 2014), 2280-2292. DOI=10.1016/j.patcog.2014.01.005
 
 ## References
-
+* https://answers.opencv.org/question/196297/aruco-markers-white-margin/
 

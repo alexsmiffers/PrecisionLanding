@@ -1,6 +1,6 @@
 FRAME_W: 640
 FRAME_H: 480
-ARUCO_DICT: "cv.aruco.DICT_6X6_100"
+ARUCO_DICT: "cv.aruco.DICT_5X5_50"
 SERIAL_DEV: "/dev/ttyAMA0"  # Pixhawk TELEM port wired to Pi UART
 BAUD: 57600                # or 57600 depending on your setup
 SQUARES_X: 7               # Number of squares in X direction on Charuco board
@@ -10,8 +10,8 @@ MARKER_LENGTH: 0.01       # Length of one marker side in meters
 TEST_MODE: True            # Set to True to enable visualization for bench testing
 DETECT_MODE: "ARUCO"  # Options: "ARUCO" or "CHARUCO"
 CAMERA_ID: 0              # Camera ID for OpenCV VideoCapture (if not using DepthAI)
-TAG_ID: 56                  # ArUco marker ID to track for landing
-TAG_SIZE: 0.139             # Size of the ArUco marker in meters
+TAG_ID: 49                  # ArUco marker ID to track for landing
+TAG_SIZE: 0.8             # Size of the ArUco marker in meters
 USE_FULL_POSE: True
-Sim: True
+Sim: False
 ALTITUDE: 10.0
