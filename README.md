@@ -106,6 +106,13 @@ https://landmarklanding.com/blogs/landmark-lab-notes/ardupilot-precision-landing
 * land manually
 * disable script
 
+## Results
+moved backwards away from the target, loses the target while the target is in vision on the raspi side.
+
+## flight 2:
+* removed the xyz pose calculation, focusing on angles only for the meantime.
+* 
+
 
 ## Notes:
 * Once flight controller (FC) is finalised investigate powering raspi directly from FC to minimise wiring. Only works on boards which TELEM outputs +5V not +3V3.
