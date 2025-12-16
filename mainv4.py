@@ -65,12 +65,8 @@ def aruco(settings, camMatrix, distCoeffs):
     rate_hz = 20.0
     period = 1.0 / rate_hz
     next_t = time.time()
-    longestLoop = 0
-    iterations = 0
 
-    # Pose Estimation Init
-    rvec = None
-    tvec = None
+    # Angle Estimation Init
     fx, fy = camMatrix[0,0], camMatrix[1,1]
     cx, cy = camMatrix[0,2], camMatrix[1,2]
 
@@ -122,14 +118,12 @@ def aruco(settings, camMatrix, distCoeffs):
                         0,                    # distance (set 0 if using rangefinder)
                         settings.get('TAG_SIZE'), settings.get('TAG_SIZE'),               # size_x, size_y
                     )
+                    print(f"Sent LANDING_TARGET: angle_x={math.degrees(angle_x):.2f}°, angle_y={math.degrees(angle_y):.2f}°")
 
-                # print("checkpoint pose computed")
                 if settings.get('TEST_MODE'):
                     drawn = frame.copy()
                     if ids is not None and ids.any():
                         cv.aruco.drawDetectedMarkers(drawn, corners, ids)
-                    if rvec is not None and tvec is not None:
-                        cv.drawFrameAxes(drawn, camMatrix, distCoeffs, rvec, tvec, 0.050)
                     cv.imshow("video", drawn)
                     if cv.waitKey(1) == ord('q'):
                         print("\x1b[31m"+"Program Ended by user"+"\033[0m")
