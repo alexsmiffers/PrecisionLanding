@@ -33,6 +33,8 @@ def aruco(settings, camMatrix, distCoeffs):
         pass  # continue anyway
     print(f"\x1b[31mHeartbeat received from system: {m.target_system} and component: {m.target_component}\033[0m")
 
+    m.mav.command_long_send(m.target_system, m.target_component, mavutil.mavlink.MAV_CMD_DO_SET_MODE, 0, mavutil.mavlink.MAV_MODE_FLAG_CUSTOM_MODE_ENABLED, 4, 0, 0, 0, 0, 0)
+
     # Declare drone initial states
     #if settings.get('Sim') == True: # only in SITL to prevent unintended behaviour on test drone
         # m.mav.command_long_send(m.target_system, m.target_component, mavutil.mavlink.MAV_CMD_DO_SET_MODE, 0, mavutil.mavlink.MAV_MODE_FLAG_CUSTOM_MODE_ENABLED, 4, 0, 0, 0, 0, 0) # set to guided disarmed mode
@@ -114,7 +116,7 @@ def aruco(settings, camMatrix, distCoeffs):
                 if retval:
                     # Camera frame: x right, y down, z forward
                     # Convert to NED: x forward, y right, z down
-                    x_b = float(tvec[2])*-1
+                    x_b = float(tvec[2])
                     y_b = float(tvec[0])
                     z_b = float(tvec[1])
                     position_valid = 1
@@ -154,7 +156,7 @@ def aruco(settings, camMatrix, distCoeffs):
                         m.mav.landing_target_send(
                             int(tnow * 1e6),        # time_usec
                             0,                      # target_num
-                            mavutil.mavlink.MAV_FRAME_BODY_NED,
+                            mavutil.mavlink.MAV_FRAME_BODY_FRD,
                             float(angle_x), float(angle_y),
                             float(distance),                    # distance (set 0 if using rangefinder)
                             settings.get('TAG_SIZE'), settings.get('TAG_SIZE'),               # size_x, size_y
