@@ -103,8 +103,8 @@ save_folder = "calibration_images"
 # Create pipeline
 with dai.Pipeline() as pipeline:
     # Define source and output
-    cam = pipeline.create(dai.node.Camera).build(dai.CameraBoardSocket.CAM_C, sensorFps=30)
-    videoQueue = cam.requestOutput((640,480)).createOutputQueue()
+    cam = pipeline.create(dai.node.Camera).build(dai.CameraBoardSocket.CAM_A, sensorFps=10)
+    videoQueue = cam.requestOutput((1600,1300)).createOutputQueue()
     cam.initialControl.setSharpness(0)     # range: 0..4, default: 1
     cam.initialControl.setBrightness(0)
     cam.initialControl.setLumaDenoise(1)   # range: 0..4, default: 1

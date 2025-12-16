@@ -18,22 +18,22 @@ def aruco(settings, camMatrix, distCoeffs):
     dictionary = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_5X5_50)
     detector = cv.aruco.ArucoDetector(dictionary, detectorParams)
 
-    print("\x1b[31m"+"Starting mavlink communication..."+"\033[0m")
-    # MAVLink connection
-    if settings.get('Sim')==True:
-        # m = mavutil.mavlink_connection('tcp:192.168.10.201:5762', baud=settings.get('BAUD'))
-        m = mavutil.mavlink_connection('udpin:127.0.0.1:14550', baud=settings.get('BAUD'))
-        print(m.mav)
-    else:
-        m = mavutil.mavlink_connection(settings.get('SERIAL_DEV'), baud=settings.get('BAUD'))
-    # Wait for heartbeat so target system/component IDs are known
-    try:
-        m.wait_heartbeat(timeout=5)
-    except Exception:
-        pass  # continue anyway
-    print(f"\x1b[31mHeartbeat received from system: {m.target_system} and component: {m.target_component}\033[0m")
+    # print("\x1b[31m"+"Starting mavlink communication..."+"\033[0m")
+    # # MAVLink connection
+    # if settings.get('Sim')==True:
+    #     # m = mavutil.mavlink_connection('tcp:192.168.10.201:5762', baud=settings.get('BAUD'))
+    #     m = mavutil.mavlink_connection('udpin:127.0.0.1:14550', baud=settings.get('BAUD'))
+    #     print(m.mav)
+    # else:
+    #     m = mavutil.mavlink_connection(settings.get('SERIAL_DEV'), baud=settings.get('BAUD'))
+    # # Wait for heartbeat so target system/component IDs are known
+    # try:
+    #     m.wait_heartbeat(timeout=5)
+    # except Exception:
+    #     pass  # continue anyway
+    # print(f"\x1b[31mHeartbeat received from system: {m.target_system} and component: {m.target_component}\033[0m")
 
-    m.mav.command_long_send(m.target_system, m.target_component, mavutil.mavlink.MAV_CMD_DO_SET_MODE, 0, mavutil.mavlink.MAV_MODE_FLAG_CUSTOM_MODE_ENABLED, 4, 0, 0, 0, 0, 0)
+    # m.mav.command_long_send(m.target_system, m.target_component, mavutil.mavlink.MAV_CMD_DO_SET_MODE, 0, mavutil.mavlink.MAV_MODE_FLAG_CUSTOM_MODE_ENABLED, 4, 0, 0, 0, 0, 0)
 
     # Declare drone initial states
     #if settings.get('Sim') == True: # only in SITL to prevent unintended behaviour on test drone
@@ -77,8 +77,8 @@ def aruco(settings, camMatrix, distCoeffs):
     # Create pipeline
     with dai.Pipeline() as pipeline:
         # Define source and output
-        cam = pipeline.create(dai.node.Camera).build(dai.CameraBoardSocket.CAM_C, sensorFps=30)
-        videoQueue = cam.requestOutput((640,480)).createOutputQueue()
+        cam = pipeline.create(dai.node.Camera).build(dai.CameraBoardSocket.CAM_A, sensorFps=10)
+        videoQueue = cam.requestOutput((1600,1300)).createOutputQueue()
         cam.initialControl.setSharpness(0)     # range: 0..4, default: 1
         cam.initialControl.setBrightness(0)
         cam.initialControl.setLumaDenoise(1)   # range: 0..4, default: 1
@@ -116,13 +116,12 @@ def aruco(settings, camMatrix, distCoeffs):
                 if retval:
                     # Camera frame: x right, y down, z forward
                     # Convert to NED: x forward, y right, z down
-                    x_b = float(tvec[2])
+                    x_b = float(tvec[1])
                     y_b = float(tvec[0])
-                    z_b = float(tvec[1])
+                    z_b = float(tvec[2])
                     position_valid = 1
+                    
                     # Derive angles from tvec
-                    angle_x = math.atan2(y_b, x_b)  # body: forward=x_b, right=y_b
-                    angle_y = math.atan2(z_b, x_b)  # body: down=z_b, forward=x_b
                     angle_x = math.atan2(y_b, x_b)  # body: forward=x_b, right=y_b
                     angle_y = math.atan2(z_b, x_b)  # body: down=z_b, forward=x_b
                     distance = math.sqrt(x_b**2 + y_b**2 + z_b**2)
@@ -132,41 +131,41 @@ def aruco(settings, camMatrix, distCoeffs):
                 if tnow >= next_t:
                     next_t += period
                     if position_valid:
-                        print(f"Position (m): x={x_b:.2f}, y={y_b:.2f}, z={z_b:.2f};\n Angles (rad): x={angle_x:.2f}, y={angle_y:.2f};\nDistance={distance:.2f}")
+                        print(f"Position (m): x={x_b:.2f}, y={y_b:.2f}, z={z_b:.2f};\n Angles (rad): x={np.rad2deg(angle_x):.2f}, y={np.rad2deg(angle_y):.2f};\nDistance={distance:.2f}")
 
-                    time_usec = int(time.time()*1e6)
-                    if settings.get('Sim') == True:
-                        # LANDING_TARGET send to SITL
-                        m.mav.landing_target_send(
-                            time_usec,        # time_usec
-                            0,                      # target_num
-                            mavutil.mavlink.MAV_FRAME_BODY_FRD,
-                            float(angle_x), float(angle_y),
-                            float(distance),                    # distance (set 0 if using rangefinder)
-                            settings.get('TAG_SIZE'), settings.get('TAG_SIZE'),               # size_x, size_y
-                            x=float(x_b), 
-                            y=float(y_b), 
-                            z=float(z_b),          # position in body frame (if available)
-                            # q=[1.0, 0.0, 0.0, 0.0],   # orientation (commented as unused)
-                            type=mavutil.mavlink.LANDING_TARGET_TYPE_VISION_FIDUCIAL,
-                            position_valid=1
-                        )
-                    else:
-                        # LANDING_TARGET send to Pixhawk
-                        m.mav.landing_target_send(
-                            int(tnow * 1e6),        # time_usec
-                            0,                      # target_num
-                            mavutil.mavlink.MAV_FRAME_BODY_FRD,
-                            float(angle_x), float(angle_y),
-                            float(distance),                    # distance (set 0 if using rangefinder)
-                            settings.get('TAG_SIZE'), settings.get('TAG_SIZE'),               # size_x, size_y
-                            x=float(x_b), 
-                            y=float(y_b), 
-                            z=float(z_b),          # position in body frame (if available)
-                            # q=[1.0, 0.0, 0.0, 0.0],   # orientation (unused here)
-                            type=mavutil.mavlink.LANDING_TARGET_TYPE_VISION_FIDUCIAL,
-                            position_valid=1
-                        )
+                    # time_usec = int(time.time()*1e6)
+                    # if settings.get('Sim') == True:
+                    #     # LANDING_TARGET send to SITL
+                    #     m.mav.landing_target_send(
+                    #         time_usec,        # time_usec
+                    #         0,                      # target_num
+                    #         mavutil.mavlink.MAV_FRAME_BODY_FRD,
+                    #         float(angle_x), float(angle_y),
+                    #         float(distance),                    # distance (set 0 if using rangefinder)
+                    #         settings.get('TAG_SIZE'), settings.get('TAG_SIZE'),               # size_x, size_y
+                    #         x=float(x_b), 
+                    #         y=float(y_b), 
+                    #         z=float(z_b),          # position in body frame (if available)
+                    #         # q=[1.0, 0.0, 0.0, 0.0],   # orientation (commented as unused)
+                    #         type=mavutil.mavlink.LANDING_TARGET_TYPE_VISION_FIDUCIAL,
+                    #         position_valid=1
+                    #     )
+                    # else:
+                    #     # LANDING_TARGET send to Pixhawk
+                    #     m.mav.landing_target_send(
+                    #         int(tnow * 1e6),        # time_usec
+                    #         0,                      # target_num
+                    #         mavutil.mavlink.MAV_FRAME_BODY_FRD,
+                    #         float(angle_x), float(angle_y),
+                    #         float(distance),                    # distance (set 0 if using rangefinder)
+                    #         settings.get('TAG_SIZE'), settings.get('TAG_SIZE'),               # size_x, size_y
+                    #         x=float(x_b), 
+                    #         y=float(y_b), 
+                    #         z=float(z_b),          # position in body frame (if available)
+                    #         # q=[1.0, 0.0, 0.0, 0.0],   # orientation (unused here)
+                    #         type=mavutil.mavlink.LANDING_TARGET_TYPE_VISION_FIDUCIAL,
+                    #         position_valid=1
+                    #     )
 
                 # print("checkpoint pose computed")
                 if settings.get('TEST_MODE') == True:

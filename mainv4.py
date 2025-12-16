@@ -18,22 +18,23 @@ def aruco(settings, camMatrix, distCoeffs):
     dictionary = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_5X5_50)
     detector = cv.aruco.ArucoDetector(dictionary, detectorParams)
 
-    print("\x1b[31m"+"Starting mavlink communication..."+"\033[0m")
-    # MAVLink connection
-    if settings.get('Sim')==True:
-        # m = mavutil.mavlink_connection('tcp:192.168.10.201:5762', baud=settings.get('BAUD'))
-        m = mavutil.mavlink_connection('udpin:127.0.0.1:14550', baud=settings.get('BAUD'))
-        print(m.mav)
-    else:
-        m = mavutil.mavlink_connection(settings.get('SERIAL_DEV'), baud=settings.get('BAUD'))
-    # Wait for heartbeat so target system/component IDs are known
-    try:
-        m.wait_heartbeat(timeout=5)
-    except Exception:
-        pass  # continue anyway
-    print(f"\x1b[31mHeartbeat received from system: {m.target_system} and component: {m.target_component}\033[0m")
+    # print("\x1b[31m"+"Starting mavlink communication..."+"\033[0m")
+    # # MAVLink connection
+    # if settings.get('Sim')==True:
+    #     # m = mavutil.mavlink_connection('tcp:192.168.10.201:5762', baud=settings.get('BAUD'))
+    #     m = mavutil.mavlink_connection('udpin:127.0.0.1:14550', baud=settings.get('BAUD'))
+    #     print(m.mav)
+    # else:
+    #     m = mavutil.mavlink_connection(settings.get('SERIAL_DEV'), baud=settings.get('BAUD'))
+    # # Wait for heartbeat so target system/component IDs are known
+    # try:
+    #     m.wait_heartbeat(timeout=5)
+    # except Exception:
+    #     pass  # continue anyway
+    # print(f"\x1b[31mHeartbeat received from system: {m.target_system} and component: {m.target_component}\033[0m")
 
-    m.mav.command_long_send(m.target_system, m.target_component, mavutil.mavlink.MAV_CMD_DO_SET_MODE, 0, mavutil.mavlink.MAV_MODE_FLAG_CUSTOM_MODE_ENABLED, 4, 0, 0, 0, 0, 0)
+    # set to guided mode to confirm control.
+    # m.mav.command_long_send(m.target_system, m.target_component, mavutil.mavlink.MAV_CMD_DO_SET_MODE, 0, mavutil.mavlink.MAV_MODE_FLAG_CUSTOM_MODE_ENABLED, 4, 0, 0, 0, 0, 0)
 
     # Declare drone initial states
     #if settings.get('Sim') == True: # only in SITL to prevent unintended behaviour on test drone
@@ -49,17 +50,9 @@ def aruco(settings, camMatrix, distCoeffs):
         # msg = m.recv_match(type='COMMAND_ACK', blocking=True)
         # print(msg)
 
-        # m.mav.param_set_send(m.target_system, m.target_component, b'PLND_ENABLED', 1, mavutil.mavlink.MAV_PARAM_TYPE_REAL32) # enable precision landing as the landing type
-        # m.mav.param_set_send(m.target_system, m.target_component, b'PLND_TYPE', 1, mavutil.mavlink.MAV_PARAM_TYPE_REAL32) # set PLND input as mavlink
-        # # m.mav.param_set_send(m.target_system, m.target_component, b'PLND_USEGPS', 0, mavutil.mavlink.MAV_PARAM_TYPE_REAL32) # set PLND input as mavlink
-        # m.mav.param_set_send(m.target_system, m.target_component, b'SIM_PLD_ENABLE', 1, mavutil.mavlink.MAV_PARAM_TYPE_REAL32)
-        # # m.mav.param_set_send(m.target_system, m.target_component, b'SIM_PLD_LAT', -35.3632, mavutil.mavlink.MAV_PARAM_TYPE_REAL32)
-        # # m.mav.param_set_send(m.target_system, m.target_component, b'SIM_PLD_LON', 149.1652, mavutil.mavlink.MAV_PARAM_TYPE_REAL32)
-        # m.mav.param_set_send(m.target_system, m.target_component, b'RNGFND1_TYPE', 1, mavutil.mavlink.MAV_PARAM_TYPE_REAL32)
-        # m.mav.param_set_send(m.target_system, m.target_component, b'RNGFND1_MIN_CM', 0, mavutil.mavlink.MAV_PARAM_TYPE_REAL32)
-        # m.mav.param_set_send(m.target_system, m.target_component, b'RNGFND1_MAX_CM', 4000, mavutil.mavlink.MAV_PARAM_TYPE_REAL32)
-        # m.mav.param_set_send(m.target_system, m.target_component, b'RNGFND1_PIN', 0, mavutil.mavlink.MAV_PARAM_TYPE_REAL32)
-        # m.mav.param_set_send(m.target_system, m.target_component, b'RNGFND1_SCALING', 12.12, mavutil.mavlink.MAV_PARAM_TYPE_REAL32)
+    # m.mav.param_set_send(m.target_system, m.target_component, b'PLND_ENABLED', 1, mavutil.mavlink.MAV_PARAM_TYPE_REAL32) # enable precision landing as the landing type
+    # m.mav.param_set_send(m.target_system, m.target_component, b'PLND_TYPE', 1, mavutil.mavlink.MAV_PARAM_TYPE_REAL32) # set PLND input as mavlink
+    # m.mav.param_set_send(m.target_system, m.target_component, b'PLND_USEGPS', 0, mavutil.mavlink.MAV_PARAM_TYPE_REAL32) # set PLND to not use gps data
 
     # Frequency Match Init
     rate_hz = 20.0
@@ -73,7 +66,7 @@ def aruco(settings, camMatrix, distCoeffs):
     # Create pipeline
     with dai.Pipeline() as pipeline:
         # Define source and output
-        cam = pipeline.create(dai.node.Camera).build(dai.CameraBoardSocket.CAM_C, sensorFps=25)
+        cam = pipeline.create(dai.node.Camera).build(dai.CameraBoardSocket.CAM_A, sensorFps=10)
         videoQueue = cam.requestOutput((1600,1300)).createOutputQueue()
         cam.initialControl.setSharpness(0)     # range: 0..4, default: 1
         cam.initialControl.setBrightness(0)
@@ -84,21 +77,29 @@ def aruco(settings, camMatrix, distCoeffs):
         # Connect to device and start pipeline
         pipeline.start()
         while pipeline.isRunning():
-            loopstart = time.time()
             videoIn = videoQueue.get()
             if not isinstance(videoIn, dai.ImgFrame):
                 print("\x1b[31m"+"Error: Received unexpected type from videoQueue."+"\033[0m")
                 continue
             frame = videoIn.getCvFrame()
 
+            # undistorting the image frame
+            h,  w = frame.shape[:2]
+            newCameraMatrix, roi = cv.getOptimalNewCameraMatrix(camMatrix, distCoeffs, (w,h), 1, (w,h))
+            undistortedFrame = cv.undistort(frame, camMatrix, distCoeffs, None, newCameraMatrix)
+            # crop the image frame
+            x, y, w, h = roi
+            undistortedFrame = undistortedFrame[y:y+h, x:x+w]
+
             # Detect ArUco markers
-            corners, ids, _ = detector.detectMarkers(frame)
+            corners, ids, _ = detector.detectMarkers(undistortedFrame)
             if ids is not None and settings.get('TAG_ID') in ids.flatten(): # when the desired tag is detected.
                 idx = np.where(ids.flatten() == settings.get('TAG_ID'))[0][0]
                 marker_corners = corners[idx]
 
                 # --- Compute angles relative to optical axis ---
                 u, v = center_from_corners(marker_corners)
+                print(u, v, cx, cy)
                 # Small-angle exact form:
                 angle_x = math.atan2((u - cx) / fx, 1.0)
                 angle_y = math.atan2((v - cy) / fy, 1.0)
@@ -108,20 +109,20 @@ def aruco(settings, camMatrix, distCoeffs):
                 if tnow >= next_t:
                     next_t += period
 
-                    time_usec = int(time.time()*1e6)
-                    # LANDING_TARGET send to Pixhawk
-                    m.mav.landing_target_send(
-                        time_usec,        # time_usec
-                        0,                      # target_num
-                        mavutil.mavlink.MAV_FRAME_BODY_FRD,
-                        float(angle_x), float(angle_y),
-                        0,                    # distance (set 0 if using rangefinder)
-                        settings.get('TAG_SIZE'), settings.get('TAG_SIZE'),               # size_x, size_y
-                    )
-                    print(f"Sent LANDING_TARGET: angle_x={math.degrees(angle_x):.2f}°, angle_y={math.degrees(angle_y):.2f}°")
+                    # time_usec = int(time.time()*1e6)
+                    # # LANDING_TARGET send to Pixhawk
+                    # m.mav.landing_target_send(
+                    #     time_usec,        # time_usec
+                    #     0,                      # target_num
+                    #     mavutil.mavlink.MAV_FRAME_BODY_FRD,
+                    #     float(angle_x), float(angle_y),
+                    #     0,                    # distance (set 0 if using rangefinder)
+                    #     settings.get('TAG_SIZE'), settings.get('TAG_SIZE'),               # size_x, size_y
+                    # )
+                    # print(f"Sent LANDING_TARGET: angle_x={math.degrees(angle_x):.2f}°, angle_y={math.degrees(angle_y):.2f}°")
 
                 if settings.get('TEST_MODE'):
-                    drawn = frame.copy()
+                    drawn = undistortedFrame.copy()
                     if ids is not None and ids.any():
                         cv.aruco.drawDetectedMarkers(drawn, corners, ids)
                     cv.imshow("video", drawn)
@@ -131,7 +132,7 @@ def aruco(settings, camMatrix, distCoeffs):
             else:
                 print("\x1b[31m"+"No Aruco in FOV"+"\033[0m")
                 if settings.get('TEST_MODE'):
-                    cv.imshow("video", frame)
+                    cv.imshow("video", undistortedFrame)
                     if cv.waitKey(1) == ord('q'):
                         print("\x1b[31m"+"Program Ended by user"+"\033[0m")
                         break
